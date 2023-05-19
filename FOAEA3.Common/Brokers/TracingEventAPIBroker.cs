@@ -1,35 +1,33 @@
 ﻿using FOAEA3.Model;
 using FOAEA3.Model.Interfaces;
-using FOAEA3.Model.Interfaces.Broker;
+using System.Collections.Generic;
 
 namespace FOAEA3.Common.Brokers
 {
     public class TracingEventAPIBroker : ITracingEventAPIBroker
     {
-        public IAPIBrokerHelper ApiHelper { get; }
-        public string Token { get; set; }
+        private IAPIBrokerHelper ApiHelper { get; }
 
-        public TracingEventAPIBroker(IAPIBrokerHelper apiHelper, string token)
+        public TracingEventAPIBroker(IAPIBrokerHelper apiHelper)
         {
             ApiHelper = apiHelper;
-            Token = token;
         }
 
-        public async Task CloseNETPTraceEventsAsync()
+        public void CloseNETPTraceEvents()
         {
-            await ApiHelper.SendCommandAsync($"api/v1/tracingEvents/CloseNETPTraceEvents", token: Token);
+            ApiHelper.SendCommand($"api/v1/tracingEvents/CloseNETPTraceEvents");
         }
 
-        public async Task<List<ApplicationEventDetailData>> GetActiveTracingEventDetailsAsync(string enfSrvCd, string fileCycle)
+        public List<ApplicationEventDetailData> GetActiveTracingEventDetails(string enfSrvCd, string fileCycle)
         {
             string apiCall = $"api/v1/tracingEvents/Details/Active?enforcementServiceCode={enfSrvCd}&fileCycle={fileCycle}";
-            return await ApiHelper.GetDataAsync<List<ApplicationEventDetailData>>(apiCall, token: Token);
+            return ApiHelper.GetDataAsync<List<ApplicationEventDetailData>>(apiCall).Result;
         }
 
-        public async Task<List<ApplicationEventData>> GetRequestedTRCINEventsAsync(string enfSrvCd, string fileCycle)
+        public List<ApplicationEventData> GetRequestedTRCINEvents(string enfSrvCd, string fileCycle)
         {
             string apiCall = $"api/v1/tracingEvents/RequestedTRCIN?enforcementServiceCode={enfSrvCd}&fileCycle={fileCycle}";
-            return await ApiHelper.GetDataAsync<List<ApplicationEventData>>(apiCall, token: Token);
+            return ApiHelper.GetDataAsync<List<ApplicationEventData>>(apiCall).Result;
         }
     }
 }

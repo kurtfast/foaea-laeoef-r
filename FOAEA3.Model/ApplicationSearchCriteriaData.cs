@@ -1,4 +1,7 @@
 ﻿using FOAEA3.Model.Enums;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace FOAEA3.Model
 {

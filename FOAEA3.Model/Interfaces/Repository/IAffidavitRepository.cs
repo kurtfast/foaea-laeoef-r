@@ -1,12 +1,10 @@
-﻿using System.Threading.Tasks;
-
-namespace FOAEA3.Model.Interfaces.Repository
+﻿namespace FOAEA3.Model.Interfaces
 {
     public interface IAffidavitRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task<AffidavitData> GetAffidavitDataAsync(string appl_EnfSrv_Cd, string appl_CtrlCd);
+        AffidavitData GetAffidavitData(string appl_EnfSrv_Cd, string appl_CtrlCd);
     }
 }

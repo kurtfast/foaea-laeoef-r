@@ -1,20 +1,19 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
 using FOAEA3.Model.Enums;
-using FOAEA3.Model.Interfaces.Repository;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using FOAEA3.Model.Interfaces;
 
 namespace FOAEA3.Data.DB
 {
-    internal class DBFailedSubmitAudit : DBbase, IFailedSubmitAuditRepository
+    public class DBFailedSubmitAudit : DBbase, IFailedSubmitAuditRepository
     {
-        public DBFailedSubmitAudit(IDBToolsAsync mainDB) : base(mainDB)
+        public DBFailedSubmitAudit(IDBTools mainDB) : base(mainDB)
         {
 
         }
 
-        public async Task AppendFiledSubmitAuditAsync(string subject_submitter, FailedSubmitActivityAreaType activityAreaType, string error)
+        public void AppendFiledSubmitAudit(string subject_submitter, FailedSubmitActivityAreaType activityAreaType, string error)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -23,7 +22,7 @@ namespace FOAEA3.Data.DB
                 {"ErrorString", error }
             };
 
-            await MainDB.ExecProcAsync("FailedSubmitDataAudit_Insert", parameters);
+            MainDB.ExecProc("FailedSubmitDataAudit_Insert", parameters);
         }
 
     }

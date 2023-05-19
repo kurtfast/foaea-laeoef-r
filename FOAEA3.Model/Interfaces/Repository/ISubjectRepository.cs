@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface ISubjectRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task<List<SubjectData>> GetSubjectsForSubmitterAsync(string submCd);
-        Task<SubjectData> GetSubjectAsync(string subjectName);
-        Task<SubjectData> GetSubjectByConfirmationCodeAsync(string confirmationCode);
+        List<SubjectData> GetSubjectsForSubmitter(string submCd);
+        SubjectData GetSubject(string subjectName);
+        SubjectData GetSubjectByConfirmationCode(string confirmationCode);
+
     }
 }

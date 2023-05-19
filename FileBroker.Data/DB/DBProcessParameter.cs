@@ -2,20 +2,19 @@
 using FileBroker.Model;
 using FileBroker.Model.Interfaces;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FileBroker.Data.DB
 {
     public class DBProcessParameter : IProcessParameterRepository
     {
-        private IDBToolsAsync MainDB { get; }
+        private IDBTools MainDB { get; }
 
-        public DBProcessParameter(IDBToolsAsync mainDB)
+        public DBProcessParameter(IDBTools mainDB)
         {
             MainDB = mainDB;
         }
 
-        public async Task<string> GetValueForParameterAsync(int processId, string parameter)
+        public string GetValueForParameter(int processId, string parameter)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -25,17 +24,10 @@ namespace FileBroker.Data.DB
 
             string outputParamFieldName = "dvchOutput";
 
-            var outputParameter = new Dictionary<string, string>
-            {
-                {outputParamFieldName, "S100"}
-            };
-
-            var values = await MainDB.GetDataFromStoredProcViaReturnParametersAsync("MessageBrokerConfigGetProcessParamterValue", parameters, outputParameter);
-
-            return values[outputParamFieldName] as string;
+            return MainDB.GetDataFromStoredProcViaReturnParameter<string>("MessageBrokerConfigGetProcessParamterValue", parameters, outputParamFieldName);
         }
 
-        public async Task<ProcessCodeData> GetProcessCodesAsync(int processId)
+        public ProcessCodeData GetProcessCodes(int processId)
         {
 
             var parameters = new Dictionary<string, object>
@@ -53,7 +45,7 @@ namespace FileBroker.Data.DB
                 { "EnfSrv_Loc_Cd",   "S4" }
             };
 
-            var values = await MainDB.GetDataFromStoredProcViaReturnParametersAsync("MessageBrokerConfigGetProcessCodes",
+            var values = MainDB.GetDataFromStoredProcViaReturnParameters("MessageBrokerConfigGetProcessCodes",
                                                                          parameters, outputParameters);
 
             var processCodes = new ProcessCodeData

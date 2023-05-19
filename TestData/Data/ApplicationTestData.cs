@@ -1,13 +1,15 @@
-﻿using FOAEA3.Model;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using FOAEA3.Model;
 using FOAEA3.Model.Enums;
-using System;
 using TestData.Helpers;
 
 namespace TestData.Data
 {
     public static class ApplicationTestData
     {
-        public static void SetupApplicationTestData(int periodCount = 1, string periodicPaymentCode = "C")
+        public static void SetupApplicationTestData(int periodCount=1, string periodicPaymentCode = "C")
         {
             InMemData.ApplicationTestData.Clear();
 
@@ -30,6 +32,7 @@ namespace TestData.Data
                 Appl_RecvAffdvt_Dte = calculatedCreationDate.Date,
                 Appl_Create_Dte = calculatedCreationDate
             });
+
 
         }
     }

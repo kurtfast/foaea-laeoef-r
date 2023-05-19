@@ -1,10 +1,10 @@
 ﻿using FOAEA3.Model.Structs;
-using System.Threading.Tasks;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface IPostalCodeRepository
     {
-        Task<(bool, string, PostalCodeFlag)> ValidatePostalCodeAsync(string postalCode, string provinceCode, string cityName);
+        bool ValidatePostalCode(string postalCode, string provinceCode, string cityName, 
+                                out string validProvCode, out PostalCodeFlag validFlags);
     }
 }

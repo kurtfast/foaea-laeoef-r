@@ -1,24 +1,24 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
+using FOAEA3.Model.Interfaces;
 using FOAEA3.Model;
+using System.Collections.Generic;
 using FOAEA3.Model.Base;
-using FOAEA3.Model.Interfaces.Repository;
-using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
-    internal class DBGender : DBbase, IGenderRepository
+    public class DBGender : DBbase, IGenderRepository
     {
         public MessageDataList Messages { get; set; }
 
-        public DBGender(IDBToolsAsync mainDB) : base(mainDB)
+        public DBGender(IDBTools mainDB) : base(mainDB)
         {
             Messages = new MessageDataList();
         }
 
-        public async Task<DataList<GenderData>> GetGendersAsync()
+        public DataList<GenderData> GetGenders()
         {
-            var data = await MainDB.GetAllDataAsync<GenderData>("Gendr", FillGenderDataFromReader);
+            var data = MainDB.GetAllData<GenderData>("Gendr", FillGenderDataFromReader);
 
             return new DataList<GenderData>(data, MainDB.LastError);
         }

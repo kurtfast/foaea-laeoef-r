@@ -1,6 +1,7 @@
-﻿using FOAEA3.Model.Interfaces.Repository;
+﻿using FOAEA3.Model.Interfaces;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Text;
 
 namespace TestData.TestDB
 {
@@ -9,7 +10,7 @@ namespace TestData.TestDB
         public string CurrentSubmitter { get; set; }
         public string UserId { get; set; }
 
-        public Task<(decimal, decimal)> UpdateGarnPeriodAsync(string applEnfSrvCd, string applCtrlCd, decimal finTrmLumpSumAmt, decimal finTrmPerPymAmt, DateTime calcStartDate, decimal lumpDivertedTtl, decimal prdPymtDivertedTtl)
+        public void UpdateGarnPeriod(string applEnfSrvCd, string applCtrlCd, decimal finTrmLumpSumAmt, decimal finTrmPerPymAmt, DateTime calcStartDate, ref decimal lumpDivertedTtl, ref decimal prdPymtDivertedTtl)
         {
             throw new NotImplementedException();
         }

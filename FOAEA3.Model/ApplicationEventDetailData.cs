@@ -1,10 +1,10 @@
 ﻿using FOAEA3.Model.Enums;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Text;
 
 namespace FOAEA3.Model
 {
-    [DebuggerDisplay("{Event_Id}: {EnfSrv_Cd} {Event_Reas_Text} [{Queue}]: {ActvSt_Cd}")]
     public class ApplicationEventDetailData
     {
         public EventQueue Queue { get; set; }

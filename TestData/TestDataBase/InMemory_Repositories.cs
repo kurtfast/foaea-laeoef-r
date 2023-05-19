@@ -1,103 +1,92 @@
 ﻿using DBHelper;
-using FOAEA3.Data.DB;
-using FOAEA3.Model.Interfaces;
-using FOAEA3.Model.Interfaces.Repository;
 using TestData.TestDB;
+using FOAEA3.Model.Interfaces;
 
 namespace TestData.TestDataBase
 {
     public class InMemory_Repositories : IRepositories
     {
-        public IDBToolsAsync MainDB { get; }
-
-        public string CurrentUser { get; set; }
+        public IDBTools MainDB { get; }
 
         public string CurrentSubmitter { get; set; }
 
-        public string UpdateSubmitter { get; set; }
+        public string CurrentUser { get; set; }
 
-        public IApplicationRepository ApplicationTable { get; }
+        public IApplicationRepository ApplicationRepository { get; }
 
-        public IApplicationEventRepository ApplicationEventTable { get; }
+        public IApplicationEventRepository ApplicationEventRepository { get; }
 
-        public IApplicationSearchRepository ApplicationSearchTable { get; }
+        public IApplicationSearchRepository ApplicationSearchRepository { get; }
 
-        public ISubmitterRepository SubmitterTable { get; }
+        public ISubmitterRepository SubmitterRepository { get; }
 
-        public IEnfOffRepository EnfOffTable { get; }
+        public IEnfOffRepository EnfOffRepository { get; }
 
-        public IEnfSrvRepository EnfSrvTable { get; }
+        public IEnfSrvRepository EnfSrvRepository { get; }
 
-        public IProvinceRepository ProvinceTable { get; }
+        public IProvinceRepository ProvinceRepository { get; }
 
-        public ISubjectRepository SubjectTable { get; }
+        public ISubjectRepository SubjectRepository { get; }
 
-        public ITracingRepository TracingTable { get; }
+        public ITracingRepository TracingRepository { get; }
 
-        public IAffidavitRepository AffidavitTable { get; }
+        public IAffidavitRepository AffidavitRepository { get; }
 
-        public ILoginRepository LoginTable { get; }
+        public ILoginRepository LoginRepository { get; }
 
-        public ISubmitterProfileRepository SubmitterProfileTable { get; }
+        public ISubmitterProfileRepository SubmitterProfileRepository { get; }
 
-        public ISubjectRoleRepository SubjectRoleTable { get; }
+        public ISubjectRoleRepository SubjectRoleRepository { get; }
 
-        public ILicenceDenialRepository LicenceDenialTable => throw new System.NotImplementedException();
+        public ILicenceDenialRepository LicenceDenialRepository => throw new System.NotImplementedException();
 
-        public ISINResultRepository SINResultTable => throw new System.NotImplementedException();
+        public ISINResultRepository SINResultRepository => throw new System.NotImplementedException();
 
-        public ITraceResponseRepository TraceResponseTable => throw new System.NotImplementedException();
+        public ITraceResponseRepository TraceResponseRepository => throw new System.NotImplementedException();
 
-        public IProductionAuditRepository ProductionAuditTable { get; }
+        public IProductionAuditRepository ProductionAuditRepository { get; }
 
-        public ISINChangeHistoryRepository SINChangeHistoryTable => throw new System.NotImplementedException();
+        public ISINChangeHistoryRepository SINChangeHistoryRepository => throw new System.NotImplementedException();
 
-        public IFamilyProvisionRepository FamilyProvisionTable => throw new System.NotImplementedException();
+        public IFamilyProvisionRepository FamilyProvisionRepository => throw new System.NotImplementedException();
 
-        public IInfoBankRepository InfoBankTable => throw new System.NotImplementedException();
+        public IInfoBankRepository InfoBankRepository => throw new System.NotImplementedException();
 
-        public IInterceptionRepository InterceptionTable { get; }
+        public IInterceptionRepository InterceptionRepository => throw new System.NotImplementedException();
 
-        public INotificationRepository NotificationService => throw new System.NotImplementedException();
+        public INotificationRepository NotificationRepository => throw new System.NotImplementedException();
 
-        public IApplicationEventDetailRepository ApplicationEventDetailTable { get; }
+        public IApplicationEventDetailRepository ApplicationEventDetailRepository => throw new System.NotImplementedException();
 
-        public ICaseManagementRepository CaseManagementTable => throw new System.NotImplementedException();
+        public ICaseManagementRepository CaseManagementRepository => throw new System.NotImplementedException();
 
-        public IAccessAuditRepository AccessAuditTable => throw new System.NotImplementedException();
+        public IAccessAuditRepository AccessAuditRepository => throw new System.NotImplementedException();
 
-        public IFailedSubmitAuditRepository FailedSubmitAuditTable => throw new System.NotImplementedException();
+        public IFailedSubmitAuditRepository FailedSubmitAuditRepository => throw new System.NotImplementedException();
 
-        public IPostalCodeRepository PostalCodeTable => throw new System.NotImplementedException();
-
-        public ILicenceDenialResponseRepository LicenceDenialResponseTable => throw new System.NotImplementedException();
-
-        public ISecurityTokenRepository SecurityTokenTable { get; }
-
-        public IEnfSrcRepository EnfSrcTable => throw new System.NotImplementedException();
+        public IPostalCodeRepository PostalCodeRepository => throw new System.NotImplementedException();
 
         public InMemory_Repositories()
         {
             MainDB = new InMemory_MainDB();
 
-            ApplicationTable = new InMemoryApplication();
-            InterceptionTable = new InMemoryInterception();
-            ApplicationEventTable = new InMemoryApplicationEvent();
-            ApplicationEventDetailTable = new InMemoryApplicationEventDetail();
+            CurrentSubmitter = "ON2D68";
+
+            ApplicationRepository = new InMemoryApplication();
+            ApplicationEventRepository = new InMemoryApplicationEvent();
             // EventSINDetailRepository = new InMemoryEventSINDetail();
-            ApplicationSearchTable = new InMemoryApplicationSearch();
-            SubmitterTable = new InMemorySubmitter();
-            EnfOffTable = new InMemoryEnfOff();
-            EnfSrvTable = new InMemoryEnfSrv();
-            ProvinceTable = new InMemoryProvince();
-            SubjectTable = new InMemorySubject();
-            TracingTable = new InMemoryTracing();
-            AffidavitTable = new InMemoryAffidavit();
-            LoginTable = new InMemoryLogin();
-            SubmitterProfileTable = new InMemorySubmitterProfile();
-            SubjectRoleTable = new InMemorySubjectRole();
-            ProductionAuditTable = new InMemoryProductionAudit();
-            SecurityTokenTable = new InMemorySecurityToken();
+            ApplicationSearchRepository = new InMemoryApplicationSearch();
+            SubmitterRepository = new InMemorySubmitter();
+            EnfOffRepository = new InMemoryEnfOff();
+            EnfSrvRepository = new InMemoryEnfSrv();
+            ProvinceRepository = new InMemoryProvince();
+            SubjectRepository = new InMemorySubject();
+            TracingRepository = new InMemoryTracing();
+            AffidavitRepository = new InMemoryAffidavit();
+            LoginRepository = new InMemoryLogin();
+            SubmitterProfileRepository = new InMemorySubmitterProfile();
+            SubjectRoleRepository = new InMemorySubjectRole();
+            ProductionAuditRepository = new InMemoryProductionAudit();
         }
     }
 }

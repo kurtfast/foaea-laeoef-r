@@ -2,21 +2,20 @@
 using FileBroker.Model.Interfaces;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace FileBroker.Data.DB
 {
 
     public class DBMailService : IMailServiceRepository
     {
-        private IDBToolsAsync MainDB { get; }
+        private IDBTools MainDB { get; }
 
-        public DBMailService(IDBToolsAsync mainDB)
+        public DBMailService(IDBTools mainDB)
         {
             MainDB = mainDB;
         }
 
-        public async Task<string> SendEmailAsync(string subject, string recipients, string body, string attachmentPath = null)
+        public string SendEmail(string subject, string recipients, string body, string attachmentPath = null)
         {
          
             var parameters = new Dictionary<string, object>
@@ -28,7 +27,7 @@ namespace FileBroker.Data.DB
 
             if (!string.IsNullOrEmpty(attachmentPath))
             {
-                int attachmentId = await UploadAttachmentToDatabaseAsync(attachmentPath);
+                int attachmentId = UploadAttachmentToDatabase(attachmentPath);
 
                 if (!string.IsNullOrEmpty(MainDB.LastError))
                     return MainDB.LastError;
@@ -36,7 +35,7 @@ namespace FileBroker.Data.DB
                 parameters.Add("attachmentId", attachmentId);
             }
 
-            await MainDB.ExecProcAsync("SendHtmlMailMessageWithAttachment", parameters);
+            MainDB.ExecProc("SendHtmlMailMessageWithAttachment", parameters);
 
             if (!string.IsNullOrEmpty(MainDB.LastError))
                 return MainDB.LastError;
@@ -44,8 +43,9 @@ namespace FileBroker.Data.DB
             return "";
         }
 
-        private async Task<int> UploadAttachmentToDatabaseAsync(string attachmentPath)
+        private int UploadAttachmentToDatabase(string attachmentPath)
         {
+
             string attachmentFileName = Path.GetFileName(attachmentPath);
             string attachmentContent = File.ReadAllText(attachmentPath);
 
@@ -55,7 +55,7 @@ namespace FileBroker.Data.DB
                 {"AttachmentContent", attachmentContent }
             };
 
-            decimal returnValue = await MainDB.GetDataFromProcSingleValueAsync<decimal>("EmailAttachment_Insert", parameters);
+            decimal returnValue = MainDB.GetDataFromProcSingleValue<decimal>("EmailAttachment_Insert", parameters);
 
             return (int)returnValue;
 

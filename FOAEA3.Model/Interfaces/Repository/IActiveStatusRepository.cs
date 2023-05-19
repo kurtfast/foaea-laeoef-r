@@ -1,13 +1,12 @@
 ﻿using FOAEA3.Model.Base;
-using System.Threading.Tasks;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface IActiveStatusRepository : IMessageList
     {
         public string CurrentSubmitter { get; set; }
         public string UserId { get; set; }
 
-        Task<DataList<ActiveStatusData>> GetActiveStatusAsync();
+        DataList<ActiveStatusData> GetActiveStatus();
     }
 }

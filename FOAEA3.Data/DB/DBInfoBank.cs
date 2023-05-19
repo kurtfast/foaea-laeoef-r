@@ -1,22 +1,25 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
 using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
     internal class DBInfoBank : DBbase, IInfoBankRepository
     {
-        public DBInfoBank(IDBToolsAsync mainDB) : base(mainDB)
+        public DBInfoBank(IDBTools mainDB) : base(mainDB)
         {
 
         }
 
-        public async Task<List<InfoBankData>> GetInfoBanksAsync()
+        public List<InfoBankData> GetInfoBanks()
         {
-            return await MainDB.GetAllDataAsync<InfoBankData>("InfoBank", FillDataFromReader);
+            return MainDB.GetAllData<InfoBankData>("InfoBank", FillDataFromReader);
         }
 
         private void FillDataFromReader(IDBHelperReader rdr, InfoBankData data)

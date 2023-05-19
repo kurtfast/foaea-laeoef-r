@@ -1,4 +1,5 @@
-﻿using FOAEA3.Model.Interfaces;
+﻿using DBHelper;
+using FOAEA3.Model.Interfaces;
 using System.Collections.Generic;
 
 namespace FOAEA3.Model.Base

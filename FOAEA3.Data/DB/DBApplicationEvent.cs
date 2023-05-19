@@ -1,23 +1,22 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
-using FOAEA3.Model;
-using FOAEA3.Model.Base;
 using FOAEA3.Model.Enums;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
+using FOAEA3.Model;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using FOAEA3.Model.Base;
 
 namespace FOAEA3.Data.DB
 {
     internal class DBApplicationEvent : DBbase, IApplicationEventRepository
     {
-        public DBApplicationEvent(IDBToolsAsync mainDB) : base(mainDB)
+        public DBApplicationEvent(IDBTools mainDB) : base(mainDB)
         {
 
         }
 
-        public async Task<List<ApplicationEventData>> GetApplicationEventsAsync(string appl_EnfSrv_Cd, string appl_CtrlCd, EventQueue queue, string activeState = null)
+        public List<ApplicationEventData> GetApplicationEvents(string appl_EnfSrv_Cd, string appl_CtrlCd, EventQueue queue, string activeState = null)
         {
             var parameters = new Dictionary<string, object>
                 {
@@ -27,32 +26,15 @@ namespace FOAEA3.Data.DB
 
             List<ApplicationEventData> data = null;
 
-
             switch (queue)
             {
-                case EventQueue.EventAM:
-                case EventQueue.EventDbtr:
-                case EventQueue.EventLicence:
-                case EventQueue.EventSYS:
-                case EventQueue.EventTrace_ESDC:
-                    // TODO: add other events associated to application?
-                    break;
-
-                case EventQueue.EventBF:
-                    data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("EvntBF_SelectForApplication",
-                                                                              parameters, FillEventDataFromReader);
-                    foreach (var item in data)
-                        item.Queue = EventQueue.EventSubm;
-
-                    break;
-
                 case EventQueue.EventBFN:
                     if (string.IsNullOrEmpty(activeState))
                         parameters.Add("ActvSt_Cd", "A");
                     else
                         parameters.Add("ActvSt_Cd", activeState);
 
-                    data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("GetEventBFNforI01",
+                    data = MainDB.GetDataFromStoredProc<ApplicationEventData>("GetEventBFNforI01",
                                                                               parameters, FillEventDataFromReader);
                     foreach (var item in data)
                         item.Queue = EventQueue.EventBFN;
@@ -60,7 +42,7 @@ namespace FOAEA3.Data.DB
                     break;
 
                 case EventQueue.EventSIN:
-                    data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("EvntSIN_SelectForApplication",
+                    data = MainDB.GetDataFromStoredProc<ApplicationEventData>("EvntSIN_SelectForApplication",
                                                                               parameters, FillEventDataFromReader);
                     foreach (var item in data)
                         item.Queue = EventQueue.EventSIN;
@@ -68,7 +50,7 @@ namespace FOAEA3.Data.DB
                     break;
 
                 case EventQueue.EventSubm:
-                    data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("EvntSubm_SelectForApplication",
+                    data = MainDB.GetDataFromStoredProc<ApplicationEventData>("EvntSubm_SelectForApplication",
                                                                               parameters, FillEventDataFromReader);
                     foreach (var item in data)
                         item.Queue = EventQueue.EventSubm;
@@ -76,14 +58,15 @@ namespace FOAEA3.Data.DB
                     break;
 
                 case EventQueue.EventTrace:
-                    data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("EvntTrace_SelectForApplication",
+                    data = MainDB.GetDataFromStoredProc<ApplicationEventData>("EvntTrace_SelectForApplication",
                                                                               parameters, FillEventDataFromReader);
                     foreach (var item in data)
                         item.Queue = EventQueue.EventTrace;
 
                     break;
-
             }
+
+            // TODO: add other events associated to application?
 
             if (string.IsNullOrEmpty(activeState))
                 return data;
@@ -92,7 +75,7 @@ namespace FOAEA3.Data.DB
 
         }
 
-        public async Task<List<ApplicationEventData>> GetEventBFAsync(string subm_SubmCd, string appl_CtrlCd, EventCode eventCode, string activeState)
+        public List<ApplicationEventData> GetEventBF(string subm_SubmCd, string appl_CtrlCd, EventCode eventCode, string activeState)
         {
             var parameters = new Dictionary<string, object>
                 {
@@ -102,7 +85,7 @@ namespace FOAEA3.Data.DB
                     {"ActvSt_Cd", activeState }
                 };
 
-            List<ApplicationEventData> data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("GetEventBF",
+            List<ApplicationEventData> data = MainDB.GetDataFromStoredProc<ApplicationEventData>("GetEventBF",
                                                                                                  parameters, FillEventDataFromReader);
             foreach (var item in data)
                 item.Queue = EventQueue.EventBF;
@@ -110,23 +93,23 @@ namespace FOAEA3.Data.DB
             return data; // returns null if no data found
         }
 
-        public async Task<List<ApplicationEventData>> GetActiveEventBFsAsync()
+        public List<ApplicationEventData> GetActiveEventBFs()
         {
-            var data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("GetActiveEvntBF", FillEventDataFromReader);
+            var data = MainDB.GetDataFromStoredProc<ApplicationEventData>("GetActiveEvntBF", FillEventDataFromReader);
             foreach (var item in data)
                 item.Queue = EventQueue.EventBF;
 
             return data; // returns null if no data found
         }
 
-        public async Task<bool> SaveEventsAsync(List<ApplicationEventData> events, ApplicationState applicationState = ApplicationState.UNDEFINED,
+        public bool SaveEvents(List<ApplicationEventData> events, ApplicationState applicationState = ApplicationState.UNDEFINED,
                                string activeState = "")
         {
             bool success = true;
 
             foreach (var eventData in events)
             {
-                success = await SaveEventAsync(eventData, applicationState, activeState);
+                success = SaveEvent(eventData, applicationState, activeState);
 
                 if (!success)
                     break;
@@ -136,20 +119,20 @@ namespace FOAEA3.Data.DB
             return success;
         }
 
-        public async Task<bool> SaveEventAsync(ApplicationEventData eventData, ApplicationState applicationState = ApplicationState.UNDEFINED,
+        public bool SaveEvent(ApplicationEventData eventData, ApplicationState applicationState = ApplicationState.UNDEFINED,
                               string activeState = "")
         {
             bool success;
 
             if (eventData.Event_Id == 0)
-                success = await CreateEventAsync(eventData, applicationState, activeState);
+                success = CreateEvent(eventData, applicationState, activeState);
             else
-                success = await UpdateEventAsync(eventData, applicationState, activeState);
+                success = UpdateEvent(eventData, applicationState, activeState);
 
             return success;
         }
 
-        private async Task<bool> CreateEventAsync(ApplicationEventData eventData, ApplicationState applicationState = ApplicationState.UNDEFINED,
+        private bool CreateEvent(ApplicationEventData eventData, ApplicationState applicationState = ApplicationState.UNDEFINED,
                                 string activeState = "")
         {
             if (applicationState == ApplicationState.UNDEFINED)
@@ -165,7 +148,7 @@ namespace FOAEA3.Data.DB
                 { "rchrAppl_CtrlCd", eventData.Appl_CtrlCd },
                 { "rdtmTimeStamp", eventData.Event_TimeStamp },
                 { "rchrSubm_Recpt", eventData.Subm_Recpt_SubmCd },
-                { "dintReas_Cd", (int) (eventData.Event_Reas_Cd ?? 0) },
+                { "dintReas_Cd", (int) eventData.Event_Reas_Cd.Value },
                 { "dchrPriority_Ind", eventData.Event_Priority_Ind },
                 { "ddtmEffctv_Dte", eventData.Event_Effctv_Dte },
                 { "dchrActvSt_Cd", activeState },
@@ -180,7 +163,7 @@ namespace FOAEA3.Data.DB
             if (!string.IsNullOrWhiteSpace(eventData.Event_Reas_Text))
                 parameters.Add("dvchReas_Text", eventData.Event_Reas_Text);
 
-            _ = await MainDB.GetDataFromStoredProcViaReturnParameterAsync<int>("fp_sub_EvntCreate", parameters, "dintEvent_Id");
+            _ = MainDB.GetDataFromStoredProcViaReturnParameter<int>("fp_sub_EvntCreate", parameters, "dintEvent_Id");
             if (!string.IsNullOrWhiteSpace(MainDB.LastError))
                 return false;
             else
@@ -188,28 +171,19 @@ namespace FOAEA3.Data.DB
 
         }
 
-        private async Task<bool> UpdateEventAsync(ApplicationEventData eventData, ApplicationState applicationState = ApplicationState.UNDEFINED,
+        private bool UpdateEvent(ApplicationEventData eventData, ApplicationState applicationState = ApplicationState.UNDEFINED,
                                 string activeState = "")
         {
             var parameters = new Dictionary<string, object>();
 
             switch (eventData.Queue)
             {
-                case EventQueue.EventAM:
-                case EventQueue.EventDbtr:
-                case EventQueue.EventLicence:
-                case EventQueue.EventSYS:
-                case EventQueue.EventTrace_ESDC:
-                case EventQueue.EventCR_PADR:
-                    // TODO: other types of events
-                    break;
-
                 case EventQueue.EventBF:
                     parameters.Add("Event_Id", eventData.Event_Id);
                     parameters.Add("AppLiSt_Cd", applicationState);
                     parameters.Add("ActvSt_Cd", activeState);
 
-                    await MainDB.ExecProcAsync("EvntBF_Update", parameters);
+                    MainDB.ExecProc("EvntBF_Update", parameters);
                     break;
 
                 case EventQueue.EventBFN:
@@ -226,7 +200,7 @@ namespace FOAEA3.Data.DB
                     parameters.Add("AppLiSt_Cd", eventData.AppLiSt_Cd);
                     parameters.Add("ActvSt_Cd", eventData.ActvSt_Cd);
 
-                    await MainDB.ExecProcAsync("EvntBFN_Update", parameters);
+                    MainDB.ExecProc("EvntBFN_Update", parameters);
                     break;
 
                 case EventQueue.EventTrace:
@@ -244,7 +218,7 @@ namespace FOAEA3.Data.DB
                     parameters.Add("ActvSt_Cd", eventData.ActvSt_Cd);
                     parameters.Add("processId", 0); // not actually used by the proc?
 
-                    await MainDB.ExecProcAsync("MessageBrokerEventTraceUpdate", parameters);
+                    MainDB.ExecProc("MessageBrokerEventTraceUpdate", parameters);
                     break;
 
                 case EventQueue.EventSIN:
@@ -252,7 +226,7 @@ namespace FOAEA3.Data.DB
                     parameters.Add("Appl_CtrlCd", eventData.Appl_CtrlCd);
                     parameters.Add("Event_TimeStamp", eventData.Event_TimeStamp);
                     parameters.Add("Subm_Recpt_SubmCd", eventData.Subm_Recpt_SubmCd);
-                    parameters.Add("Event_Reas_Cd", (int)(eventData.Event_Reas_Cd ?? 0));
+                    parameters.Add("Event_Reas_Cd", (int)eventData.Event_Reas_Cd.Value);
                     parameters.Add("Event_Priority_Ind", eventData.Event_Priority_Ind);
                     parameters.Add("Event_Effctv_Dte", eventData.Event_Effctv_Dte);
                     parameters.Add("ActvSt_Cd", eventData.ActvSt_Cd);
@@ -263,9 +237,11 @@ namespace FOAEA3.Data.DB
                     if (eventData.Event_Compl_Dte.HasValue)
                         parameters.Add("Event_Compl_Dte", eventData.Event_Compl_Dte.Value);
 
-                    await MainDB.ExecProcAsync("MessageBrokerEventSINUpdate", parameters);
+                    MainDB.ExecProc("MessageBrokerEventSINUpdate", parameters);
                     break;
             }
+
+            // TODO: other types of events
 
             if (string.IsNullOrEmpty(MainDB.LastError))
                 return true;
@@ -274,12 +250,12 @@ namespace FOAEA3.Data.DB
 
         }
 
-        public async Task CloseNETPTraceEventsAsync()
+        public void CloseNETPTraceEvents()
         {
-            await MainDB.ExecProcAsync("MessageBrokerCloseESDCTraceEvents");
+            MainDB.ExecProc("MessageBrokerCloseESDCTraceEvents");
         }
 
-        public async Task<int> GetTraceEventCountAsync(string appl_EnfSrv_Cd, string appl_CtrlCd, DateTime receivedAffidavitDate,
+        public int GetTraceEventCount(string appl_EnfSrv_Cd, string appl_CtrlCd, DateTime receivedAffidavitDate,
                                       EventCode eventReasonCode, int eventId)
         {
             var parameters = new Dictionary<string, object>
@@ -291,10 +267,10 @@ namespace FOAEA3.Data.DB
                 {"EventId", eventId},
             };
 
-            return await MainDB.ExecProcAsync("EvntTraceGetEventCount", parameters);
+            return MainDB.ExecProc("EvntTraceGetEventCount", parameters);
         }
 
-        public async Task<List<ApplicationEventData>> GetRequestedTRCINTracingEventsAsync(string enfSrv_Cd, string cycle)
+        public List<ApplicationEventData> GetRequestedTRCINTracingEvents(string enfSrv_Cd, string cycle)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -302,7 +278,7 @@ namespace FOAEA3.Data.DB
                 {"cycle", cycle}
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("MessageBrokerRequestedTRCINEventData", parameters,
+            var result = MainDB.GetDataFromStoredProc<ApplicationEventData>("MessageBrokerRequestedTRCINEventData", parameters,
                                                                             FillEventDataFromReader);
             foreach (var item in result)
                 item.Queue = EventQueue.EventTrace;
@@ -310,24 +286,7 @@ namespace FOAEA3.Data.DB
             return result;
         }
 
-        public async Task<List<ApplicationEventData>> GetRequestedLICINLicenceDenialEventsAsync(string enfSrv_Cd, string appl_EnfSrv_Cd,
-                                                                               string appl_CtrlCd)
-        {
-            var parameters = new Dictionary<string, object>
-            {
-                {"EnfSrv_Cd", enfSrv_Cd},
-                {"Appl_EnfSrv_Cd", appl_EnfSrv_Cd},
-                {"Appl_CtrlCd", appl_CtrlCd}
-            };
-
-            var result = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("MessageBrokerRequestedLICINEventData", parameters,
-                                                                            FillEventDataFromReader);
-            foreach (var item in result)
-                item.Queue = EventQueue.EventLicence;
-            return result;
-        }
-
-        public async Task<DataList<ApplicationEventData>> GetRequestedSINEventDataForFileAsync(string enfSrv_Cd, string fileName)
+        public DataList<ApplicationEventData> GetRequestedSINEventDataForFile(string enfSrv_Cd, string fileName)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -335,7 +294,7 @@ namespace FOAEA3.Data.DB
                 { "fileName", fileName }
             };
 
-            var resultData = await MainDB.GetDataFromStoredProcAsync<ApplicationEventData>("MessageBrokerRequestedSININEventData", parameters,
+            var resultData = MainDB.GetDataFromStoredProc<ApplicationEventData>("MessageBrokerRequestedSININEventData", parameters,
                                                                                 FillEventDataFromReader);
 
             foreach (var item in resultData)
@@ -352,29 +311,7 @@ namespace FOAEA3.Data.DB
             return result;
         }
 
-        public async Task<List<SinInboundToApplData>> GetLatestSinEventDataSummaryAsync()
-        {
-            return await MainDB.GetDataFromStoredProcAsync<SinInboundToApplData>("MessageBrokerGetSINInboundToApplData", FillLatestSinEventDataFromReader);
-        }
-
-        private void FillLatestSinEventDataFromReader(IDBHelperReader rdr, SinInboundToApplData data)
-        {
-            data.Event_Id = (int)rdr["Event_Id"];
-            data.Appl_EnfSrv_Cd = rdr["Appl_EnfSrv_Cd"] as string;
-            data.Appl_CtrlCd = rdr["Appl_CtrlCd"] as string;
-            data.Tot_Childs = (int)rdr["Tot_Childs"];
-            data.Tot_Closed = (int)rdr["Tot_Closed"];
-            data.Tot_Invalid = (int)rdr["Tot_Invalid"];
-            data.Subm_SubmCd = rdr["Subm_SubmCd"] as string;
-            data.Appl_Dbtr_Cnfrmd_SIN = rdr["Appl_Dbtr_Cnfrmd_SIN"] as string;
-            data.Appl_Dbtr_RtrndBySrc_SIN = rdr["Appl_Dbtr_RtrndBySrc_SIN"] as string;
-            data.AppLiSt_Cd = (short)rdr["AppLiSt_Cd"];
-            data.ActvSt_Cd = rdr["ActvSt_Cd"] as string;
-            data.SVR_SIN = rdr["SVR_SIN"] as string;
-            data.ValStat_Cd = (short)rdr["ValStat_Cd"];
-        }
-
-        public async Task DeleteBFEventAsync(string subm_SubmCd, string appl_CtrlCd)
+        public void DeleteBFEvent(string subm_SubmCd, string appl_CtrlCd)
         {
             var parameters = new Dictionary<string, object>
                     {
@@ -382,7 +319,7 @@ namespace FOAEA3.Data.DB
                         {"Appl_CtrlCd", appl_CtrlCd }
                     };
 
-            await MainDB.ExecProcAsync("EvntBF_DeleteForSubmitterCodeControlCode", parameters);
+            MainDB.ExecProc("EvntBF_DeleteForSubmitterCodeControlCode", parameters);
 
         }
 

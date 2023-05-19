@@ -1,90 +1,127 @@
 ﻿using FOAEA3.Resources.Helpers;
+using System;
 
 namespace FOAEA3.Model
 {
     public class ApiConfig
     {
-        private string foaeaRootAPI;
-        private string foaeaInterceptionRootAPI;
-        private string foaeaLicenceDenialRootAPI;
-        private string foaeaTracingRootAPI;
-        private string fileBrokerMEPInterceptionRootAPI;
-        private string fileBrokerMEPLicenceDenialRootAPI;
-        private string fileBrokerMEPTracingRootAPI;
-        private string fileBrokerFederalInterceptionRootAPI;
-        private string fileBrokerFederalLicenceDenialRootAPI;
-        private string fileBrokerFederalTracingRootAPI;
-        private string fileBrokerFederalSINRootAPI;
+        private string applicationRootAPI;
+        private string interceptionRootAPI;
+        private string licenceDenialRootAPI;
+        private string tracingRootAPI;
+        private string incomingMEPInterceptionRootAPI;
+        private string incomingMEPLicenceDenialRootAPI;
+        private string incomingMEPTracingRootAPI;
+        private string incomingFederalInterceptionRootAPI;
+        private string incomingFederalLicenceDenialRootAPI;
+        private string incomingFederalTracingRootAPI;
+        private string incomingFederalSINRootAPI;
+        private string outgoingMEPInterceptionRootAPI;
+        private string outgoingMEPLicenceDenialRootAPI;
+        private string outgoingMEPTracingRootAPI;
+        private string outgoingFederalInterceptionRootAPI;
+        private string outgoingFederalLicenceDenialRootAPI;
+        private string outgoingFederalTracingRootAPI;
+        private string outgoingFederalSINRootAPI;
         private string backendProcessesRootAPI;
-        private string fileBrokerAccountRootAPI;
 
-        public string FoaeaRootAPI
+        public string ApplicationRootAPI
         {
-            get => foaeaRootAPI;
-            set => foaeaRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => applicationRootAPI;
+            set => applicationRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FoaeaInterceptionRootAPI
+        public string InterceptionRootAPI
         {
-            get => foaeaInterceptionRootAPI;
-            set => foaeaInterceptionRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => interceptionRootAPI;
+            set => interceptionRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FoaeaLicenceDenialRootAPI
+        public string LicenceDenialRootAPI
         {
-            get => foaeaLicenceDenialRootAPI;
-            set => foaeaLicenceDenialRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => licenceDenialRootAPI;
+            set => licenceDenialRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FoaeaTracingRootAPI
+        public string TracingRootAPI
         {
-            get => foaeaTracingRootAPI;
-            set => foaeaTracingRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => tracingRootAPI;
+            set => tracingRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FileBrokerMEPInterceptionRootAPI
+        public string IncomingMEPInterceptionRootAPI
         {
-            get => fileBrokerMEPInterceptionRootAPI;
-            set => fileBrokerMEPInterceptionRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => incomingMEPInterceptionRootAPI;
+            set => incomingMEPInterceptionRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FileBrokerMEPLicenceDenialRootAPI
+        public string IncomingMEPLicenceDenialRootAPI
         {
-            get => fileBrokerMEPLicenceDenialRootAPI;
-            set => fileBrokerMEPLicenceDenialRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => incomingMEPLicenceDenialRootAPI;
+            set => incomingMEPLicenceDenialRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FileBrokerMEPTracingRootAPI
+        public string IncomingMEPTracingRootAPI
         {
-            get => fileBrokerMEPTracingRootAPI;
-            set => fileBrokerMEPTracingRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => incomingMEPTracingRootAPI;
+            set => incomingMEPTracingRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FileBrokerFederalInterceptionRootAPI
+        public string IncomingFederalInterceptionRootAPI
         {
-            get => fileBrokerFederalInterceptionRootAPI;
-            set => fileBrokerFederalInterceptionRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => incomingFederalInterceptionRootAPI;
+            set => incomingFederalInterceptionRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FileBrokerFederalLicenceDenialRootAPI
+        public string IncomingFederalLicenceDenialRootAPI
         {
-            get => fileBrokerFederalLicenceDenialRootAPI;
-            set => fileBrokerFederalLicenceDenialRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => incomingFederalLicenceDenialRootAPI;
+            set => incomingFederalLicenceDenialRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FileBrokerFederalTracingRootAPI
+        public string IncomingFederalTracingRootAPI
         {
-            get => fileBrokerFederalTracingRootAPI;
-            set => fileBrokerFederalTracingRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => incomingFederalTracingRootAPI;
+            set => incomingFederalTracingRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-        public string FileBrokerFederalSINRootAPI
+        public string IncomingFederalSINRootAPI
         {
-            get => fileBrokerFederalSINRootAPI;
-            set => fileBrokerFederalSINRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+            get => incomingFederalSINRootAPI;
+            set => incomingFederalSINRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
-
+        public string OutgoingMEPInterceptionRootAPI
+        {
+            get => outgoingMEPInterceptionRootAPI;
+            set => outgoingMEPInterceptionRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+        }
+        public string OutgoingMEPLicenceDenialRootAPI
+        {
+            get => outgoingMEPLicenceDenialRootAPI;
+            set => outgoingMEPLicenceDenialRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+        }
+        public string OutgoingMEPTracingRootAPI
+        {
+            get => outgoingMEPTracingRootAPI;
+            set => outgoingMEPTracingRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+        }
+        public string OutgoingFederalInterceptionRootAPI
+        {
+            get => outgoingFederalInterceptionRootAPI;
+            set => outgoingFederalInterceptionRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+        }
+        public string OutgoingFederalLicenceDenialRootAPI
+        {
+            get => outgoingFederalLicenceDenialRootAPI;
+            set => outgoingFederalLicenceDenialRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+        }
+        public string OutgoingFederalTracingRootAPI
+        {
+            get => outgoingFederalTracingRootAPI;
+            set => outgoingFederalTracingRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+        }
+        public string OutgoingFederalSINRootAPI
+        {
+            get => outgoingFederalSINRootAPI;
+            set => outgoingFederalSINRootAPI = value.ReplaceVariablesWithEnvironmentValues();
+        }
+        
         public string BackendProcessesRootAPI
         {
             get => backendProcessesRootAPI;
             set => backendProcessesRootAPI = value.ReplaceVariablesWithEnvironmentValues();
         }
 
-        public string FileBrokerAccountRootAPI
-        {
-            get => fileBrokerAccountRootAPI;
-            set => fileBrokerAccountRootAPI = value.ReplaceVariablesWithEnvironmentValues();
-        }
 
     }
 }

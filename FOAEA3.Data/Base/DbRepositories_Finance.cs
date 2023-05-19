@@ -1,15 +1,12 @@
 ﻿using DBHelper;
 using FOAEA3.Data.DB;
-using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using FOAEA3.Model.Interfaces;
 
 namespace FOAEA3.Data.Base
 {
     public class DbRepositories_Finance : IRepositories_Finance
     {
-        public IDBToolsAsync MainDB { get; }
+        public IDBTools MainDB { get; }
         private ISummonsSummaryRepository summonsSummaryDB;
         private IActiveSummonsRepository activeSummonsDB;
         private IGarnPeriodRepository garnPeriodDB;
@@ -20,7 +17,6 @@ namespace FOAEA3.Data.Base
         private ISummFAFR_DERepository summFAFR_DEDB;
         private ISummFAFRRepository summFAFRDB;
         private IControlBatchRepository controlBatchDB;
-        private IFinancialRepository padrDB;
 
         public string CurrentSubmitter
         {
@@ -34,7 +30,7 @@ namespace FOAEA3.Data.Base
             set => MainDB.UserId = value;
         }
 
-        public DbRepositories_Finance(IDBToolsAsync mainDB)
+        public DbRepositories_Finance(IDBTools mainDB)
         {
             MainDB = mainDB;
         }
@@ -43,7 +39,8 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                summonsSummaryDB ??= new DBSummonsSummary(MainDB);
+                if (summonsSummaryDB is null)
+                    summonsSummaryDB = new DBSummonsSummary(MainDB);
                 return summonsSummaryDB;
             }
         }
@@ -52,7 +49,8 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                summonsSummaryFixedAmountDB ??= new DBSummonsSummaryFixedAmount(MainDB);
+                if (summonsSummaryFixedAmountDB is null)
+                    summonsSummaryFixedAmountDB = new DBSummonsSummaryFixedAmount(MainDB);
                 return summonsSummaryFixedAmountDB;
             }
         }
@@ -61,7 +59,8 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                activeSummonsDB ??= new DBActiveSummons(MainDB);
+                if (activeSummonsDB is null)
+                    activeSummonsDB = new DBActiveSummons(MainDB);
                 return activeSummonsDB;
             }
         }
@@ -70,7 +69,8 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                garnPeriodDB ??= new DBGarnPeriod(MainDB);
+                if (garnPeriodDB is null)
+                    garnPeriodDB = new DBGarnPeriod(MainDB);
                 return garnPeriodDB;
             }
         }
@@ -79,7 +79,8 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                garnSummaryDB ??= new DBGarnSummary(MainDB);
+                if (garnSummaryDB is null)
+                    garnSummaryDB = new DBGarnSummary(MainDB);
                 return garnSummaryDB;
             }
         }
@@ -88,7 +89,8 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                divertFundsDB ??= new DBDivertFunds(MainDB);
+                if (divertFundsDB is null)
+                    divertFundsDB = new DBDivertFunds(MainDB);
                 return divertFundsDB;
             }
         }
@@ -97,7 +99,8 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                summDFDB ??= new DBSummDF(MainDB);
+                if (summDFDB is null)
+                    summDFDB = new DBSummDF(MainDB);
                 return summDFDB;
             }
         }
@@ -106,7 +109,8 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                summFAFR_DEDB ??= new DBSummFAFR_DE(MainDB);
+                if (summFAFR_DEDB is null)
+                    summFAFR_DEDB = new DBSummFAFR_DE(MainDB);
                 return summFAFR_DEDB;
             }
         }
@@ -115,7 +119,8 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                summFAFRDB ??= new DBSummFAFR(MainDB);
+                if (summFAFRDB is null)
+                    summFAFRDB = new DBSummFAFR(MainDB);
                 return summFAFRDB;
             }
         }
@@ -124,17 +129,9 @@ namespace FOAEA3.Data.Base
         {
             get
             {
-                controlBatchDB ??= new DBControlBatch(MainDB);
+                if (controlBatchDB is null)
+                    controlBatchDB = new DBControlBatch(MainDB);
                 return controlBatchDB;
-            }
-        }
-
-        public IFinancialRepository FinancialRepository
-        {
-            get
-            {
-                padrDB ??= new DBFinancial(MainDB);
-                return padrDB;
             }
         }
     }

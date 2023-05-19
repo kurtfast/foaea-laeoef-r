@@ -1,29 +1,26 @@
-﻿using FOAEA3.Common;
+﻿using FOAEA3.Common.Helpers;
 using FOAEA3.Model;
-using FOAEA3.Model.Constants;
-using FOAEA3.Model.Interfaces.Repository;
-using Microsoft.AspNetCore.Authorization;
+using FOAEA3.Model.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
-namespace FOAEA3.API.Areas.Administration.Controllers;
-
-[ApiController]
-[Route("api/v1/[controller]")]
-public class EnfOfficesController : FoaeaControllerBase
+namespace FOAEA3.API.Areas.Administration.Controllers
 {
-    [HttpGet("Version")]
-    public ActionResult<string> GetVersion() => Ok("EnfOffices API Version 1.0");
-
-    [HttpGet("DB")]
-    [Authorize(Roles = Roles.Admin)]
-    public ActionResult<string> GetDatabase([FromServices] IRepositories repositories) => Ok(repositories.MainDB.ConnectionString);
-
-    [HttpGet]
-    public async Task<ActionResult<List<EnfOffData>>> GetEnfOffices([FromServices] IRepositories repositories,
-                                                        [FromQuery] string enfOffName = null, [FromQuery] string enfOffCode = null,
-                                                        [FromQuery] string province = null, [FromQuery] string enfServCode = null)
+    [ApiController]
+    [Route("api/v1/[controller]")]
+    public class EnfOfficesController : ControllerBase
     {
-        return Ok(await repositories.EnfOffTable.GetEnfOffAsync(enfOffName, enfOffCode, province, enfServCode));
-    }
+        [HttpGet]
+        public ActionResult<List<EnfOffData>> GetEnfOffices([FromServices] IRepositories repositories,
+                                                            [FromQuery] string enfOffName = null, [FromQuery] string enfOffCode = null,
+                                                            [FromQuery] string province = null, [FromQuery] string enfServCode = null)
+        {
+            APIHelper.ApplyRequestHeaders(repositories, Request.Headers);
+            APIHelper.PrepareResponseHeaders(Response.Headers);
 
+            return Ok(repositories.EnfOffRepository.GetEnfOff(enfOffName, enfOffCode, province, enfServCode));
+        }
+
+    }
 }

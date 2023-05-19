@@ -1,25 +1,27 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
+using FOAEA3.Model.Enums;
+using FOAEA3.Model.Interfaces;
 using FOAEA3.Model;
+using System;
+using System.Collections.Generic;
 using FOAEA3.Model.Base;
-using FOAEA3.Model.Interfaces.Repository;
-using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
-    internal class DBApplicationComments : DBbase, IApplicationCommentsRepository
+    public class DBApplicationComments: DBbase, IApplicationCommentsRepository
     {
-        public DBApplicationComments(IDBToolsAsync mainDB) : base(mainDB)
+        public DBApplicationComments(IDBTools mainDB) : base(mainDB)
         {
             Messages = new MessageDataList();
         }
 
         public MessageDataList Messages { get; set; }
 
-        public async Task<DataList<ApplicationCommentsData>> GetApplicationCommentsAsync()
+        public DataList<ApplicationCommentsData> GetApplicationComments()
         {
 
-            var data = await MainDB.GetAllDataAsync<ApplicationCommentsData>("ApplicationComments", FillDataFromReader);
+            var data = MainDB.GetAllData<ApplicationCommentsData>("ApplicationComments", FillDataFromReader);
 
             return new DataList<ApplicationCommentsData>(data, MainDB.LastError);
 

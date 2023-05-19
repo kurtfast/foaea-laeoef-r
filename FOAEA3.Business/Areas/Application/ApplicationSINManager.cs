@@ -1,18 +1,17 @@
-﻿using DBHelper;
+﻿using FOAEA3.Resources.Helpers;
 using FOAEA3.Model;
 using FOAEA3.Model.Base;
 using FOAEA3.Model.Enums;
-using FOAEA3.Model.Interfaces.Repository;
-using FOAEA3.Resources.Helpers;
+using FOAEA3.Model.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace FOAEA3.Business.Areas.Application
 {
     internal class ApplicationSINManager
     {
-        private IRepositories DB { get; }
+        private IRepositories Repositories { get; }
 
         private ApplicationData Application { get; }
         private ApplicationManager ApplicationManager { get; }
@@ -20,19 +19,19 @@ namespace FOAEA3.Business.Areas.Application
 
         public ApplicationSINManager(ApplicationData application, ApplicationManager manager)
         {
-            DB = manager.DB;
+            Repositories = manager.Repositories;
             Application = application;
             ApplicationManager = manager;
         }
 
-        public async Task<List<SINOutgoingFederalData>> GetFederalOutgoingDataAsync(int maxRecords, string activeState, ApplicationState lifeState,
+        public List<SINOutgoingFederalData> GetFederalOutgoingData(int maxRecords, string activeState, ApplicationState lifeState,
                                                                    string enfServiceCode)
         {
-            var sinDB = DB.SINResultTable;
-            return await sinDB.GetFederalSINOutgoingDataAsync(maxRecords, activeState, lifeState, enfServiceCode);
+            var sinDB = Repositories.SINResultRepository;
+            return sinDB.GetFederalSINOutgoingData(maxRecords, activeState, lifeState, enfServiceCode);
         }
 
-        public async Task SINconfirmationBypassAsync(string applDbtrEntrdSIN, string lastUpdateUser, bool swapNames = false,
+        public void SINconfirmationBypass(string applDbtrEntrdSIN, string lastUpdateUser, bool swapNames = false,
                                           string HRDCcomments = "")
         {
             Application.Appl_LastUpdate_Usr = lastUpdateUser;
@@ -41,26 +40,26 @@ namespace FOAEA3.Business.Areas.Application
             if (Application.AppLiSt_Cd == ApplicationState.SIN_NOT_CONFIRMED_5)
             {
                 EventManager.AddEvent(EventCode.C51116_SIN_HAS_BEEN_MANUALLY_CONFIRMED);
-                await EventManager.SaveEventsAsync();
+                EventManager.SaveEvents();
 
-                await SINconfirmationAsync(true, applDbtrEntrdSIN, lastUpdateUser, swapNames, HRDCcomments);
+                SINconfirmation(true, applDbtrEntrdSIN, lastUpdateUser, swapNames, HRDCcomments);
             }
             else
             {
                 EventManager.AddEvent(EventCode.C50933_INVALID_OPERATION_FROM_THE_CURRENT_LIFE_STATE, $"Inv. action {(int)Application.AppLiSt_Cd} <> 5");
-                await EventManager.SaveEventsAsync();
+                EventManager.SaveEvents();
 
                 return;
             }
 
-            await ApplicationManager.LoadApplicationAsync(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd);
+            ApplicationManager.LoadApplication(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd);
 
-            if (Application.Medium_Cd != "FTP") Application.Messages.AddInformation(EventCode.C50620_VALID_APPLICATION);
+            Application.Messages.AddInformation(EventCode.C50620_VALID_APPLICATION);
 
         }
 
-        public async Task SINconfirmationAsync(bool isSinConfirmed, string confirmedSin, string lastUpdateUser, bool swapNames = false,
-                                    string HRDCcomments = "")
+        private void SINconfirmation(bool isSinConfirmed, string confirmedSin, string lastUpdateUser, bool swapNames = false,
+                                     string HRDCcomments = "")
         {
 
             if (swapNames)
@@ -76,7 +75,7 @@ namespace FOAEA3.Business.Areas.Application
             if (Application.AppLiSt_Cd.NotIn(ApplicationState.SIN_CONFIRMATION_PENDING_3, ApplicationState.SIN_NOT_CONFIRMED_5))
             {
                 EventManager.AddEvent(EventCode.C50933_INVALID_OPERATION_FROM_THE_CURRENT_LIFE_STATE, $"Inv. action {(int)Application.AppLiSt_Cd} <>3, <>5");
-                await EventManager.SaveEventsAsync();
+                EventManager.SaveEvents();
 
                 return;
             }
@@ -88,13 +87,13 @@ namespace FOAEA3.Business.Areas.Application
                     Application.Appl_Dbtr_Cnfrmd_SIN = confirmedSin;
                     Application.Appl_SIN_Cnfrmd_Ind = 1;
 
-                    await ApplicationManager.SetNewStateTo(ApplicationState.SIN_CONFIRMED_4);
+                    ApplicationManager.SetNewStateTo(ApplicationState.SIN_CONFIRMED_4);
                 }
                 else
                 {
                     EventManager.AddEvent(EventCode.C50523_INVALID_SIN, appState: ApplicationState.INVALID_APPLICATION_1);
 
-                    await ApplicationManager.SetNewStateTo(ApplicationState.INVALID_APPLICATION_1);
+                    ApplicationManager.SetNewStateTo(ApplicationState.INVALID_APPLICATION_1);
                 }
             }
             else
@@ -102,18 +101,18 @@ namespace FOAEA3.Business.Areas.Application
                 Application.Appl_Dbtr_Cnfrmd_SIN = null;
                 Application.Appl_SIN_Cnfrmd_Ind = 0;
 
-                await ApplicationManager.SetNewStateTo(ApplicationState.SIN_NOT_CONFIRMED_5);
+                ApplicationManager.SetNewStateTo(ApplicationState.SIN_NOT_CONFIRMED_5);
             }
 
             ApplicationManager.MakeUpperCase();
-            await ApplicationManager.UpdateApplicationNoValidationAsync();
+            ApplicationManager.UpdateApplicationNoValidation();
 
-            await UpdateSINChangeHistoryAsync(HRDCcomments);
-
-            await EventManager.SaveEventsAsync();
+            UpdateSINChangeHistory(HRDCcomments);
+           
+            EventManager.SaveEvents();
         }
 
-        public async Task UpdateSINChangeHistoryAsync(string HRDCcomments = "")
+        public void UpdateSINChangeHistory(string HRDCcomments = "")
         {
             if (Application.Appl_SIN_Cnfrmd_Ind == 1)
             {
@@ -138,28 +137,46 @@ namespace FOAEA3.Business.Areas.Application
                 else
                 {
                     sinChangeHistoryData.SINChangeHistoryComment = "SIN Confirmation";
-                    EventManager.AddEvent(EventCode.C50650_SIN_CONFIRMED, eventReasonText: await ApplicationManager.GetSINResultsEventTextAsync());
+                    EventManager.AddEvent(EventCode.C50650_SIN_CONFIRMED, eventReasonText: GetSINResultsEventText());
                 }
 
-                await DB.SINChangeHistoryTable.CreateSINChangeHistoryAsync(sinChangeHistoryData);
+                Repositories.SINChangeHistoryRepository.CreateSINChangeHistory(sinChangeHistoryData);
             }
 
         }
 
-        public async Task<DataList<SINResultData>> GetSINResultsAsync()
+
+        public string GetSINResultsEventText()
         {
-            return await DB.SINResultTable.GetSINResultsAsync(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd);
+            string result = string.Empty;
+
+            var data = Repositories.SINResultRepository.GetSINResults(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd);
+            var sinData = data.Items.FirstOrDefault();
+
+            if (sinData != null)
+            {
+                result = $"{sinData.SVR_DOB_TolCd}{sinData.SVR_GvnNme_TolCd}{sinData.SVR_MddlNme_TolCd}" +
+                         $"{sinData.SVR_SurNme_TolCd}{sinData.SVR_MotherNme_TolCd}{sinData.SVR_Gendr_TolCd}";
+                result += ((sinData.ValStat_Cd == 0) || (sinData.ValStat_Cd == 10)) ? "Y" : "N";
+            }
+
+            return result;
         }
 
-        public async Task<DataList<SINResultWithHistoryData>> GetSINResultsWithHistoryAsync()
+        public DataList<SINResultData> GetSINResults()
         {
-            return await DB.SINResultTable.GetSINResultsWithHistoryAsync(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd);
+            return Repositories.SINResultRepository.GetSINResults(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd);
         }
 
-        public async Task CreateResultDataAsync(List<SINResultData> resultData)
+        public DataList<SINResultWithHistoryData> GetSINResultsWithHistory()
         {
-            var responsesDB = DB.SINResultTable;
-            await responsesDB.InsertBulkDataAsync(resultData);
+            return Repositories.SINResultRepository.GetSINResultsWithHistory(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd);
+        }
+
+        public void CreateResultData(List<SINResultData> resultData)
+        {
+            var responsesDB = Repositories.SINResultRepository;
+            responsesDB.InsertBulkData(resultData);
         }
 
         public string GetSinForApplication()

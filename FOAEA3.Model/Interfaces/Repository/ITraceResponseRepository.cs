@@ -1,31 +1,18 @@
 ﻿using FOAEA3.Model.Base;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface ITraceResponseRepository : IMessageList
     {
         string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string UserId { get; set; }
 
-        Task<DataList<TraceResponseData>> GetTraceResponseForApplicationAsync(string applEnfSrvCd, string applCtrlCd, bool checkCycle = false);
-        Task<List<CraFieldData>> GetCraFields();
-        Task<List<CraFormData>> GetCraForms();
-
-        Task InsertBulkDataAsync(List<TraceResponseData> responseData);
-
-        Task<DataList<TraceFinancialResponseData>> GetTraceResponseFinancialsForApplication(string applEnfSrvCd, string applCtrlCd);
-        Task<DataList<TraceFinancialResponseData>> GetActiveTraceResponseFinancialsForApplication(string applEnfSrvCd, string applCtrlCd);
-
-        Task<DataList<TraceFinancialResponseDetailData>> GetTraceResponseFinancialDetails(int traceResponseFinancialId);
-        Task<DataList<TraceFinancialResponseDetailValueData>> GetTraceResponseFinancialDetailValues(int traceResponseFinancialDetailId);
-        Task<int> CreateTraceFinancialResponse(TraceFinancialResponseData data);
-        Task<int> CreateTraceFinancialResponseDetail(TraceFinancialResponseDetailData data);
-        Task<int> CreateTraceFinancialResponseDetailValue(TraceFinancialResponseDetailValueData data);
-        Task UpdateTraceResponseFinancial(TraceFinancialResponseData data);
-
-        Task DeleteCancelledApplicationTraceResponseDataAsync(string applEnfSrvCd, string applCtrlCd, string enfSrvCd);
-        Task MarkResponsesAsViewedAsync(string enfService);
+        DataList<TraceResponseData> GetTraceResponseForApplication(string applEnfSrvCd, string applCtrlCd, bool checkCycle = false);
+        void InsertBulkData(List<TraceResponseData> responseData);
+        void DeleteCancelledApplicationTraceResponseData(string applEnfSrvCd, string applCtrlCd, string enfSrvCd);
+        void MarkResponsesAsViewed(string enfService);
     }
 }

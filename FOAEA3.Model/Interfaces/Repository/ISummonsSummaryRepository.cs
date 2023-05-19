@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface ISummonsSummaryRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task<List<SummonsSummaryData>> GetSummonsSummaryAsync(string appl_EnfSrv_Cd = "", string appl_CtrlCd = "", string debtorId = "");
-        Task<List<SummonsSummaryData>> GetAmountOwedRecordsAsync();
-        Task<List<SummonsSummaryData>> GetFixedAmountRecalcDateRecordsAsync();
-        Task<decimal> GetFeesOwedTotalAsync(int yearsCount, DateTime finTermsEffectiveDate, bool isFeeCumulative);
-        Task CreateSummonsSummaryAsync(SummonsSummaryData summSmryData);
-        Task UpdateSummonsSummaryAsync(SummonsSummaryData summSmryData);
+        public List<SummonsSummaryData> GetSummonsSummary(string appl_EnfSrv_Cd = "", string appl_CtrlCd = "", string debtorId = "");
+        public List<SummonsSummaryData> GetAmountOwedRecords();
+        public decimal GetFeesOwedTotal(int yearsCount, DateTime finTermsEffectiveDate, bool isFeeCumulative);
+        void CreateSummonsSummary(SummonsSummaryData summSmryData);
+        public void UpdateSummonsSummary(SummonsSummaryData summSmryData);
     }
 }

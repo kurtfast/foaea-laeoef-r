@@ -1,21 +1,20 @@
 ﻿using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
-using System.Threading.Tasks;
+using FOAEA3.Model.Interfaces;
 
 namespace FOAEA3.Business.Security
 {
     internal class SubmitterProfileManager
     {
-        private readonly IRepositories DB;
+        private readonly IRepositories Repositories;
 
-        public SubmitterProfileManager(IRepositories repositories)
+        internal SubmitterProfileManager(IRepositories repositories)
         {
-            DB = repositories;
+            Repositories = repositories;
         }
 
-        public async Task<SubmitterProfileData> GetSubmitterProfileAsync(string submitterCode)
+        internal SubmitterProfileData GetSubmitterProfile(string submitterCode)
         {
-            return await DB.SubmitterProfileTable.GetSubmitterProfileAsync(submitterCode);
+            return Repositories.SubmitterProfileRepository.GetSubmitterProfile(submitterCode);
         }
 
     }

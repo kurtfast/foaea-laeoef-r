@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using FOAEA3.Model.Base;
 using System.Threading.Tasks;
 
-namespace FOAEA3.Model.Interfaces.Broker
+namespace FOAEA3.Model.Interfaces
 {
     public interface IApplicationLifeStatesAPIBroker
     {
-        IAPIBrokerHelper ApiHelper { get; }
-        string Token { get; set; }
-
-        Task<List<ApplicationLifeStateData>> GetApplicationLifeStatesAsync();
+        DataList<ApplicationLifeStateData> GetApplicationLifeStates();
     }
 }

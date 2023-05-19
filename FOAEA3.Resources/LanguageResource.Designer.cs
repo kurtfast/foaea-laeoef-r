@@ -19,7 +19,7 @@ namespace FOAEA3.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class LanguageResource {
@@ -124,24 +124,6 @@ namespace FOAEA3.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Section.
-        /// </summary>
-        public static string AUDIT_SECTION {
-            get {
-                return ResourceManager.GetString("AUDIT_SECTION", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Success.
-        /// </summary>
-        public static string AUDIT_SUCCESS {
-            get {
-                return ResourceManager.GetString("AUDIT_SUCCESS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Confirm new password.
         /// </summary>
         public static string CHANGE_PASSWORD_CONFIRM_LABEL {
@@ -210,15 +192,6 @@ namespace FOAEA3.Resources {
         public static string CONFIRMATION_CODE_LABEL {
             get {
                 return ResourceManager.GetString("CONFIRMATION_CODE_LABEL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to contains invalid tag.
-        /// </summary>
-        public static string CONTAINS_INVALID_TAG {
-            get {
-                return ResourceManager.GetString("CONTAINS_INVALID_TAG", resourceCulture);
             }
         }
         
@@ -448,15 +421,6 @@ namespace FOAEA3.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Errors detected.
-        /// </summary>
-        public static string ERRORS_DETECTED {
-            get {
-                return ResourceManager.GetString("ERRORS_DETECTED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Colour of eyes.
         /// </summary>
         public static string EYE_COLOUR {
@@ -565,15 +529,6 @@ namespace FOAEA3.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Loaded records.
-        /// </summary>
-        public static string LOADED_RECORDS {
-            get {
-                return ResourceManager.GetString("LOADED_RECORDS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Logout.
         /// </summary>
         public static string LOGOUT {
@@ -606,15 +561,6 @@ namespace FOAEA3.Resources {
         public static string NOTICESENTTODEBTOR_DTE {
             get {
                 return ResourceManager.GetString("NOTICESENTTODEBTOR_DTE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Number of records.
-        /// </summary>
-        public static string NUMBER_OF_RECORDS {
-            get {
-                return ResourceManager.GetString("NUMBER_OF_RECORDS", resourceCulture);
             }
         }
         
@@ -678,24 +624,6 @@ namespace FOAEA3.Resources {
         public static string READ_ONLY {
             get {
                 return ResourceManager.GetString("READ_ONLY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Records not loaded.
-        /// </summary>
-        public static string RECORDS_NOT_LOADED {
-            get {
-                return ResourceManager.GetString("RECORDS_NOT_LOADED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Records removed from file.
-        /// </summary>
-        public static string RECORDS_REMOVED_FROM_FILE {
-            get {
-                return ResourceManager.GetString("RECORDS_REMOVED_FROM_FILE", resourceCulture);
             }
         }
         
@@ -907,15 +835,6 @@ namespace FOAEA3.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Total XML validation warnings.
-        /// </summary>
-        public static string TOTAL_XML_VALIDATION_WARNINGS {
-            get {
-                return ResourceManager.GetString("TOTAL_XML_VALIDATION_WARNINGS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Tracing.
         /// </summary>
         public static string TRACING {
@@ -975,15 +894,6 @@ namespace FOAEA3.Resources {
         public static string WELCOME_GREETING {
             get {
                 return ResourceManager.GetString("WELCOME_GREETING", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to XML validation warnings.
-        /// </summary>
-        public static string XML_VALIDATION_WARNINGS {
-            get {
-                return ResourceManager.GetString("XML_VALIDATION_WARNINGS", resourceCulture);
             }
         }
     }

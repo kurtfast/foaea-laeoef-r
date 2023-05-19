@@ -1,136 +1,129 @@
-﻿using FileBroker.Common.Helpers;
+﻿using FileBroker.Data;
+using FileBroker.Model;
+using FOAEA3.Common.Brokers;
+using FOAEA3.Model;
+using FOAEA3.Resources.Helpers;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
-namespace FileBroker.Business;
-
-public class OutgoingFederalSinManager : IOutgoingFileManager
+namespace FileBroker.Business
 {
-    private APIBrokerList APIs { get; }
-    private RepositoryList DB { get; }
-
-    private FoaeaSystemAccess FoaeaAccess { get; }
-
-    public OutgoingFederalSinManager(APIBrokerList apis, RepositoryList repositories, IFileBrokerConfigurationHelper config)
+    public class OutgoingFederalSinManager
     {
-        APIs = apis;
-        DB = repositories;
+        private APIBrokerList APIs { get; }
+        private RepositoryList Repositories { get; }
 
-        FoaeaAccess = new FoaeaSystemAccess(apis, config.FoaeaLogin);
-    }
-
-    public async Task<(string, List<string>)> CreateOutputFileAsync(string fileBaseName)
-    {
-        var errors = new List<string>();
-
-        bool fileCreated = false;
-
-        var fileTableData = await DB.FileTable.GetFileTableDataForFileName(fileBaseName);
-
-        int cycleLength = 3;
-        int thisNewCycle = fileTableData.Cycle + 1;
-        if (thisNewCycle == 1000)
-            thisNewCycle = 1;
-        string newCycle = thisNewCycle.ToString(new string('0', cycleLength));
-
-        try
+        public OutgoingFederalSinManager(APIBrokerList apiBrokers, RepositoryList repositories)
         {
-            var processCodes = await DB.ProcessParameterTable.GetProcessCodesAsync(fileTableData.PrcId);
+            APIs = apiBrokers;
+            Repositories = repositories;
+        }
 
-            string newFilePath = fileTableData.Path + fileBaseName + "." + newCycle;
-            if (File.Exists(newFilePath))
-            {
-                errors.Add("** Error: File Already Exists");
-                return ("", errors);
-            }
+        public string CreateOutputFile(string fileBaseName, out List<string> errors)
+        {
+            errors = new List<string>();
 
-            await FoaeaAccess.SystemLogin();
+            string newFilePath = string.Empty;
+            bool fileCreated = false;
+
+            var fileTableData = Repositories.FileTable.GetFileTableDataForFileName(fileBaseName);
 
             try
             {
-                var data = await GetOutgoingDataAsync(fileTableData, processCodes.ActvSt_Cd, processCodes.AppLiSt_Cd,
+                var processCodes = Repositories.ProcessParameterTable.GetProcessCodes(fileTableData.PrcId);
+
+                int cycleLength = 3;
+                string newCycle = fileTableData.Cycle.ToString(new string('0', cycleLength));
+
+                newFilePath = fileTableData.Path + fileBaseName + "." + newCycle;
+                if (File.Exists(newFilePath))
+                {
+                    errors.Add("** Error: File Already Exists");
+                    return "";
+                }
+
+                var data = GetOutgoingData(fileTableData, processCodes.ActvSt_Cd, processCodes.AppLiSt_Cd,
                                            processCodes.EnfSrv_Cd);
 
                 var eventIds = new List<int>();
                 string fileContent = GenerateOutputFileContentFromData(data, newCycle, ref eventIds);
 
-                await File.WriteAllTextAsync(newFilePath, fileContent);
+                File.WriteAllText(newFilePath, fileContent);
                 fileCreated = true;
 
-                await DB.OutboundAuditTable.InsertIntoOutboundAuditAsync(fileBaseName + "." + newCycle, DateTime.Now, fileCreated,
+                Repositories.OutboundAuditDB.InsertIntoOutboundAudit(newFilePath, DateTime.Now, fileCreated,
                                                                      "Outbound File created successfully.");
 
-                await DB.FileTable.SetNextCycleForFileType(fileTableData, newCycle.Length);
+                Repositories.FileTable.SetNextCycleForFileType(fileTableData, newCycle.Length);
 
-                await APIs.ApplicationEvents.UpdateOutboundEventDetailAsync(processCodes.ActvSt_Cd, processCodes.AppLiSt_Cd,
-                                                                 processCodes.EnfSrv_Cd,
-                                                                 "OK: Written to " + newFilePath, eventIds);
+                APIs.ApplicationEventAPIBroker.UpdateOutboundEventDetail(processCodes.ActvSt_Cd, processCodes.AppLiSt_Cd,
+                                                                         processCodes.EnfSrv_Cd,
+                                                                         "OK: Written to " + newFilePath, eventIds);
+
+                return newFilePath;
+
             }
-            finally
+            catch (Exception e)
             {
-                await FoaeaAccess.SystemLogout();
+                string error = "Error Creating Outbound Data File: " + e.Message;
+                errors.Add(error);
+
+                Repositories.OutboundAuditDB.InsertIntoOutboundAudit(newFilePath, DateTime.Now, fileCreated, error);
+
+                Repositories.ErrorTrackingDB.MessageBrokerError($"File Error: {fileTableData.PrcId} {fileBaseName}", "Error creating outbound file", e, true);
+
+                return string.Empty;
             }
 
-            return (newFilePath, errors);
-
         }
-        catch (Exception e)
+
+        private List<SINOutgoingFederalData> GetOutgoingData(FileTableData fileTableData, string actvSt_Cd,
+                                                             int appLiSt_Cd, string enfSrvCode)
         {
-            string error = "Error Creating Outbound Data File: " + e.Message;
-            errors.Add(error);
+            var recMax = Repositories.ProcessParameterTable.GetValueForParameter(fileTableData.PrcId, "rec_max");
+            int maxRecords = string.IsNullOrEmpty(recMax) ? 0 : int.Parse(recMax);
 
-            await DB.OutboundAuditTable.InsertIntoOutboundAuditAsync(fileBaseName + "." + newCycle, DateTime.Now, fileCreated, error);
-
-            await DB.ErrorTrackingTable.MessageBrokerErrorAsync($"File Error: {fileTableData.PrcId} {fileBaseName}",
-                                                                       "Error creating outbound file", e, displayExceptionError: true);
-
-            return (string.Empty, errors);
+            var data = APIs.SinAPIBroker.GetOutgoingFederalSins(maxRecords, actvSt_Cd, appLiSt_Cd, enfSrvCode);
+            return data;
         }
-    }
 
-    private async Task<List<SINOutgoingFederalData>> GetOutgoingDataAsync(FileTableData fileTableData, string actvSt_Cd,
-                                                         int appLiSt_Cd, string enfSrvCode)
-    {
-        var recMax = await DB.ProcessParameterTable.GetValueForParameterAsync(fileTableData.PrcId, "rec_max");
-        int maxRecords = string.IsNullOrEmpty(recMax) ? 0 : int.Parse(recMax);
-
-        var data = await APIs.Sins.GetOutgoingFederalSinsAsync(maxRecords, actvSt_Cd, appLiSt_Cd, enfSrvCode);
-        return data;
-    }
-
-    private static string GenerateOutputFileContentFromData(List<SINOutgoingFederalData> data,
-                                                            string newCycle, ref List<int> eventIds)
-    {
-        var result = new StringBuilder();
-
-        result.AppendLine(GenerateHeaderLine(newCycle));
-        foreach (var item in data)
+        private static string GenerateOutputFileContentFromData(List<SINOutgoingFederalData> data,
+                                                                string newCycle, ref List<int> eventIds)
         {
-            result.AppendLine(GenerateDetailLine(item));
-            eventIds.Add(item.Event_dtl_Id);
+            var result = new StringBuilder();
+
+            result.AppendLine(GenerateHeaderLine(newCycle));
+            foreach (var item in data)
+            {
+                result.AppendLine(GenerateDetailLine(item));
+                eventIds.Add(item.Event_dtl_Id);
+            }
+            result.AppendLine(GenerateFooterLine(data.Count));
+
+            return result.ToString();
         }
-        result.AppendLine(GenerateFooterLine(data.Count));
 
-        return result.ToString();
-    }
+        private static string GenerateHeaderLine(string newCycle)
+        {
+            string julianDate = DateTime.Now.AsJulianString();
 
-    private static string GenerateHeaderLine(string newCycle)
-    {
-        string julianDate = DateTime.Now.AsJulianString();
+            return $"01{newCycle}{julianDate}";
+        }
 
-        return $"01{newCycle}{julianDate}";
-    }
+        private static string GenerateDetailLine(SINOutgoingFederalData item)
+        {
+            string result = $"02{item.Appl_EnfSrv_Cd:6}{item.Appl_CtrlCd:6}{item.Appl_Dbtr_Entrd_SIN:9}" +
+                            $"{item.Appl_Dbtr_FrstNme:15}{item.Appl_Dbtr_MddleNme:15}{item.Appl_Dbtr_SurNme:25}" +
+                            $"{item.Appl_Dbtr_Parent_SurNme:25}{item.Appl_Dbtr_Gendr_Cd:1}{item.Appl_Dbtr_Brth_Dte:8}";
 
-    private static string GenerateDetailLine(SINOutgoingFederalData item)
-    {
-        string result = $"02{item.Appl_EnfSrv_Cd,6}{item.Appl_CtrlCd,6}{item.Appl_Dbtr_Entrd_SIN,9}" +
-                        $"{item.Appl_Dbtr_FrstNme,15}{item.Appl_Dbtr_MddleNme,15}{item.Appl_Dbtr_SurNme,25}" +
-                        $"{item.Appl_Dbtr_Parent_SurNme,25}{item.Appl_Dbtr_Gendr_Cd,1}{item.Appl_Dbtr_Brth_Dte,8}";
+            return result;
+        }
 
-        return result;
-    }
-
-    private static string GenerateFooterLine(int rowCount)
-    {
-        return $"99{rowCount:000000}";
+        private static string GenerateFooterLine(int rowCount)
+        {
+            return $"99{rowCount:000000}";
+        }
     }
 }

@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface IFamilyProvisionRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task<List<FamilyProvisionData>> GetFamilyProvisionsAsync();
+        List<FamilyProvisionData> GetFamilyProvisions();           
     }
 }

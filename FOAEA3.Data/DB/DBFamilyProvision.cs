@@ -1,21 +1,24 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
 using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
     internal class DBFamilyProvision : DBbase, IFamilyProvisionRepository
     {
-        public DBFamilyProvision(IDBToolsAsync mainDB) : base(mainDB)
+        public DBFamilyProvision(IDBTools mainDB) : base(mainDB)
         {
         }
 
-        public async Task<List<FamilyProvisionData>> GetFamilyProvisionsAsync()
+        public List<FamilyProvisionData> GetFamilyProvisions()
         {
-            return await MainDB.GetAllDataAsync<FamilyProvisionData>("FamPro", FillDataFromReader);
+            return MainDB.GetAllData<FamilyProvisionData>("FamPro", FillDataFromReader);
         }
 
         private void FillDataFromReader(IDBHelperReader rdr, FamilyProvisionData data)

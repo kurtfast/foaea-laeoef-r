@@ -23,17 +23,6 @@ namespace DBHelper
             }
         }
 
-        public object this[int index]
-        {
-            get
-            {
-                if (rdr.IsDBNull(index))
-                    return null;
-                else
-                    return rdr[index];
-            }
-        }
-
         public IEnumerator GetEnumerator()
         {
             return rdr.GetEnumerator();

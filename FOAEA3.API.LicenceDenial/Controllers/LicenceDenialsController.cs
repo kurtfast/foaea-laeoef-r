@@ -1,193 +1,124 @@
 ﻿using FOAEA3.Business.Areas.Application;
-using FOAEA3.Common;
 using FOAEA3.Common.Helpers;
 using FOAEA3.Model;
-using FOAEA3.Model.Constants;
 using FOAEA3.Model.Enums;
-using FOAEA3.Model.Interfaces.Repository;
-using Microsoft.AspNetCore.Authorization;
+using FOAEA3.Model.Interfaces;
+using FOAEA3.Resources.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System;
+using System.IO;
 
-namespace FOAEA3.API.LicenceDenial.Controllers;
-
-[ApiController]
-[Route("api/v1/[controller]")]
-public class LicenceDenialsController : FoaeaControllerBase
+namespace FOAEA3.API.LicenceDenial.Controllers
 {
-    [HttpGet("Version")]
-    public ActionResult<string> GetVersion() => Ok("LicenceDenialsFiles API Version 1.0");
-
-    [HttpGet("DB")]
-    [Authorize(Roles = Roles.Admin)]
-    public ActionResult<string> GetDatabase([FromServices] IRepositories repositories) => Ok(repositories.MainDB.ConnectionString);
-
-    [HttpGet("{key}", Name = "GetLicenceDenial")]
-    public async Task<ActionResult<LicenceDenialApplicationData>> GetApplication([FromRoute] string key,
-                                                                     [FromServices] IRepositories repositories)
+    [ApiController]
+    [Route("api/v1/[controller]")]
+    public class LicenceDenialsController : ControllerBase
     {
-        var applKey = new ApplKey(key);
+        private readonly CustomConfig config;
 
-        var manager = new LicenceDenialManager(repositories, config, User);
-
-        bool success = await manager.LoadApplicationAsync(applKey.EnfSrv, applKey.CtrlCd);
-        if (success)
+        public LicenceDenialsController(IOptions<CustomConfig> config)
         {
-            if (manager.LicenceDenialApplication.AppCtgy_Cd == "L01")
-                return Ok(manager.LicenceDenialApplication);
-            else
-                return NotFound($"Error: requested L01 application but found {manager.LicenceDenialApplication.AppCtgy_Cd} application.");
+            this.config = config.Value;
         }
-        else
-            return NotFound();
 
-    }
-
-    [HttpGet("{key}/LicenceSuspensionHistory")]
-    public async Task<ActionResult<List<LicenceSuspensionHistoryData>>> GetLicenceSuspensionHistory([FromRoute] string key,
-                                                                                        [FromServices] IRepositories repositories)
-    {
-        var applKey = new ApplKey(key);
-
-        var manager = new LicenceDenialManager(repositories, config, User);
-
-        bool success = await manager.LoadApplicationAsync(applKey.EnfSrv, applKey.CtrlCd);
-        if (success)
+        [HttpGet("{key}")]
+        public ActionResult<LicenceDenialData> GetApplication([FromRoute] string key, [FromServices] IRepositories repositories)
         {
-            if (manager.LicenceDenialApplication.AppCtgy_Cd == "L01")
-            {
-                var suspensionHistory = manager.GetLicenceSuspensionHistoryAsync();
+            APIHelper.ApplyRequestHeaders(repositories, Request.Headers);
+            APIHelper.PrepareResponseHeaders(Response.Headers);
 
-                return Ok(suspensionHistory);
+            var applKey = new ApplKey(key);
+
+            var manager = new LicenceDenialManager(new LicenceDenialData(), repositories, config);
+
+            bool success = manager.LoadApplication(applKey.EnfSrv, applKey.CtrlCd);
+            if (success)
+            {
+                if (manager.LicenceDenialApplication.AppCtgy_Cd == "L01")
+                    return Ok(manager.LicenceDenialApplication);
+                else
+                    return NotFound($"Error: requested L01 application but found {manager.LicenceDenialApplication.AppCtgy_Cd} application.");
             }
             else
-                return NotFound($"Error: requested L01 application but found {manager.LicenceDenialApplication.AppCtgy_Cd} application.");
+                return NotFound();
+
         }
-        else
-            return NotFound();
 
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<LicenceDenialApplicationData>> CreateApplication([FromServices] IRepositories db)
-    {
-        var application = await APIBrokerHelper.GetDataFromRequestBodyAsync<LicenceDenialApplicationData>(Request);
-
-        if (!APIHelper.ValidateRequest(application, applKey: null, out string error))
-            return UnprocessableEntity(error);
-
-        var licenceDenialManager = new LicenceDenialManager(application, db, config, User);
-        var submitter = (await db.SubmitterTable.GetSubmitterAsync(application.Subm_SubmCd)).FirstOrDefault();
-        if (submitter is not null)
+        [HttpPost]
+        public ActionResult<LicenceDenialData> CreateApplication([FromServices] IRepositories repositories)
         {
-            licenceDenialManager.CurrentUser.Submitter = submitter;
-            db.CurrentSubmitter = submitter.Subm_SubmCd;
+            APIHelper.ApplyRequestHeaders(repositories, Request.Headers);
+            APIHelper.PrepareResponseHeaders(Response.Headers);
+
+            var LicenceDenialData = APIBrokerHelper.GetDataFromRequestBody<LicenceDenialData>(Request);
+
+            var LicenceDenialManager = new LicenceDenialManager(LicenceDenialData, repositories, config);
+            if (!LicenceDenialManager.LicenceDenialApplication.Messages.ContainsMessagesOfType(MessageType.Error))
+            {
+                LicenceDenialManager.CreateApplication();
+                var actionPath = HttpContext.Request.Path.Value + Path.AltDirectorySeparatorChar + LicenceDenialManager.LicenceDenialApplication.Appl_EnfSrv_Cd + "-" + LicenceDenialManager.LicenceDenialApplication.Appl_CtrlCd;
+                var getURI = new Uri("http://" + HttpContext.Request.Host.ToString() + actionPath);
+
+                return Created(getURI, LicenceDenialManager.LicenceDenialApplication);
+            }
+            else
+            {
+                return UnprocessableEntity(LicenceDenialManager.LicenceDenialApplication);
+            }
+
         }
 
-        bool isCreated = await licenceDenialManager.CreateApplicationAsync();
-        if (isCreated)
+        [HttpPut]
+        [Produces("application/json")]
+        public ActionResult<LicenceDenialData> UpdateApplication([FromServices] IRepositories repositories)
         {
-            var appKey = $"{application.Appl_EnfSrv_Cd}-{application.Appl_CtrlCd}";
+            APIHelper.ApplyRequestHeaders(repositories, Request.Headers);
+            APIHelper.PrepareResponseHeaders(Response.Headers);
 
-            return CreatedAtRoute("GetLicenceDenial", new { key = appKey }, application);
+            var LicenceDenialData = APIBrokerHelper.GetDataFromRequestBody<LicenceDenialData>(Request);
+
+            var LicenceDenialManager = new LicenceDenialManager(LicenceDenialData, repositories, config);
+            if (!LicenceDenialManager.LicenceDenialApplication.Messages.ContainsMessagesOfType(MessageType.Error))
+            {
+                LicenceDenialManager.UpdateApplication();
+
+                return Ok(LicenceDenialManager.LicenceDenialApplication);
+            }
+            else
+            {
+                return UnprocessableEntity(LicenceDenialManager.LicenceDenialApplication);
+            }
+
         }
-        else
+
+        [HttpPut("{key}/SINbypass")]
+        public ActionResult<LicenceDenialData> SINbypass([FromRoute] string key,
+                                                         [FromServices] IRepositories repositories)
         {
-            return UnprocessableEntity(application);
-        }
+            APIHelper.ApplyRequestHeaders(repositories, Request.Headers);
+            APIHelper.PrepareResponseHeaders(Response.Headers);
 
-    }
+            var applKey = new ApplKey(key);
 
-    [HttpPut("{key}")]
-    [Produces("application/json")]
-    public async Task<ActionResult<LicenceDenialApplicationData>> UpdateApplication(
-                                                    [FromRoute] string key,
-                                                    [FromServices] IRepositories repositories)
-    {
-        var applKey = new ApplKey(key);
+            var sinBypassData = APIBrokerHelper.GetDataFromRequestBody<SINBypassData>(Request);
 
-        var application = await APIBrokerHelper.GetDataFromRequestBodyAsync<LicenceDenialApplicationData>(Request);
+            var application = new LicenceDenialData();
 
-        if (!APIHelper.ValidateRequest(application, applKey, out string error))
-            return UnprocessableEntity(error);
+            var appManager = new LicenceDenialManager(application, repositories, config);
+            appManager.LoadApplication(applKey.EnfSrv, applKey.CtrlCd);
 
-        var licenceDenialManager = new LicenceDenialManager(application, repositories, config, User);
-        await licenceDenialManager.UpdateApplicationAsync();
+            var sinManager = new ApplicationSINManager(application, appManager);
+            sinManager.SINconfirmationBypass(sinBypassData.NewSIN, repositories.CurrentSubmitter, false, sinBypassData.Reason);
 
-        if (!application.Messages.ContainsMessagesOfType(MessageType.Error))
             return Ok(application);
-        else
-            return UnprocessableEntity(application);
+        }
 
-    }
-
-    [HttpPut("{key}/Transfer")]
-    public async Task<ActionResult<LicenceDenialApplicationData>> Transfer([FromRoute] string key,
-                                                     [FromServices] IRepositories repositories,
-                                                     [FromQuery] string newRecipientSubmitter,
-                                                     [FromQuery] string newIssuingSubmitter)
-    {
-        var applKey = new ApplKey(key);
-
-        var application = await APIBrokerHelper.GetDataFromRequestBodyAsync<LicenceDenialApplicationData>(Request);
-
-        if (!APIHelper.ValidateRequest(application, applKey, out string error))
-            return UnprocessableEntity(error);
-
-        var appManager = new LicenceDenialManager(application, repositories, config, User);
-
-        await appManager.TransferApplicationAsync(newIssuingSubmitter, newRecipientSubmitter);
-
-        return Ok(application);
-    }
-
-    [HttpPut("{key}/SINbypass")]
-    public async Task<ActionResult<LicenceDenialApplicationData>> SINbypass([FromRoute] string key,
-                                                     [FromServices] IRepositories repositories)
-    {
-        var applKey = new ApplKey(key);
-
-        var sinBypassData = await APIBrokerHelper.GetDataFromRequestBodyAsync<SINBypassData>(Request);
-
-        var application = new LicenceDenialApplicationData();
-
-        var appManager = new LicenceDenialManager(application, repositories, config, User);
-
-        await appManager.LoadApplicationAsync(applKey.EnfSrv, applKey.CtrlCd);
-
-        if (!APIHelper.ValidateRequest(appManager.LicenceDenialApplication, applKey, out string error))
-            return UnprocessableEntity(error);
-
-        var sinManager = new ApplicationSINManager(application, appManager);
-        await sinManager.SINconfirmationBypassAsync(sinBypassData.NewSIN, repositories.CurrentSubmitter, false, sinBypassData.Reason);
-
-        return Ok(application);
-    }
-
-    [HttpPut("{key}/ProcessLicenceDenialResponse")]
-    public async Task<ActionResult<LicenceDenialApplicationData>> ProcessLicenceDenialResponse([FromRoute] string key,
-                                                                                   [FromServices] IRepositories repositories)
-    {
-        var applKey = new ApplKey(key);
-
-        var application = new LicenceDenialApplicationData();
-
-        var appManager = new LicenceDenialManager(application, repositories, config, User);
-
-        if (await appManager.ProcessLicenceDenialResponseAsync(applKey.EnfSrv, applKey.CtrlCd))
-            return Ok(application);
-        else
-            return UnprocessableEntity(application);
-    }
-
-    [HttpGet("LicenceDenialToApplication")]
-    public async Task<ActionResult<List<TraceCycleQuantityData>>> GetLicenceDenialToApplData([FromQuery] string federalSource,
-                                                            [FromServices] IRepositories repositories)
-    {
-        var manager = new LicenceDenialManager(repositories, config, User);
-
-        var data = await manager.GetLicenceDenialToApplDataAsync(federalSource);
-
-        return Ok(data);
-
+        [HttpGet("Version")]
+        public ActionResult<string> Version()
+        {
+            return Ok("FOAEA3.API.LicenceDenial API Version 1.4");
+        }
     }
 }

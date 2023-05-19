@@ -1,10 +1,9 @@
-﻿using FOAEA3.Model;
+﻿using FOAEA3.Model.Interfaces;
+using FOAEA3.Model;
+using System;
 using FOAEA3.Model.Base;
 using FOAEA3.Model.Enums;
-using FOAEA3.Model.Interfaces.Repository;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace TestData.TestDB
 {
@@ -13,52 +12,47 @@ namespace TestData.TestDB
         public string CurrentSubmitter { get; set; }
         public string UserId { get; set; }
 
-        public Task CreateESDCEventTraceDataAsync()
+        public void CreateTracingData(TracingApplicationData data)
         {
             throw new NotImplementedException();
         }
 
-        public Task CreateTracingDataAsync(TracingApplicationData data)
+        public DataList<TracingApplicationData> GetApplicationsWaitingForAffidavit()
         {
             throw new NotImplementedException();
         }
 
-        public Task<DataList<TracingApplicationData>> GetApplicationsWaitingForAffidavitAsync()
+        public List<TracingOutgoingFederalData> GetFederalOutgoingData(int maxRecords, string activeState, ApplicationState lifeState, string enfServiceCode)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<TracingOutgoingFederalData>> GetFederalOutgoingDataAsync(int maxRecords, string activeState, ApplicationState lifeState, string enfServiceCode)
+        public List<TracingOutgoingProvincialData> GetProvincialOutgoingData(int maxRecords, string activeState, string recipientCode, bool isXML = true)
         {
             throw new NotImplementedException();
         }
 
-        public Task<TracingOutgoingProvincialData> GetProvincialOutgoingDataAsync(int maxRecords, string activeState, string recipientCode, bool isXML = true)
+        public List<TraceCycleQuantityData> GetTraceCycleQuantityData(string enfSrv_Cd, string cycle)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<TraceCycleQuantityData>> GetTraceCycleQuantityDataAsync(string enfSrv_Cd, string cycle)
+        public List<TraceToApplData> GetTraceToApplData()
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<TraceToApplData>> GetTraceToApplDataAsync()
+        public TracingApplicationData GetTracingData(string appl_EnfSrv_Cd, string appl_CtrlCd)
         {
             throw new NotImplementedException();
         }
 
-        public Task<TracingApplicationData> GetTracingDataAsync(string appl_EnfSrv_Cd, string appl_CtrlCd)
+        public bool TracingDataExists(string appl_EnfSrv_Cd, string appl_CtrlCd)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> TracingDataExistsAsync(string appl_EnfSrv_Cd, string appl_CtrlCd)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateTracingDataAsync(TracingApplicationData data)
+        public void UpdateTracingData(TracingApplicationData data)
         {
             throw new NotImplementedException();
         }

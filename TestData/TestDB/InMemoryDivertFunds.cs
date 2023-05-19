@@ -1,7 +1,9 @@
-﻿using FOAEA3.Model.Interfaces.Repository;
+﻿using FOAEA3.Model;
+using FOAEA3.Model.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
 namespace TestData.TestDB
 {
@@ -10,7 +12,7 @@ namespace TestData.TestDB
         public string CurrentSubmitter { get; set; }
         public string UserId { get; set; }
 
-        public Task<decimal> GetTotalDivertedForPeriodAsync(string appl_EnfSrv_Cd, string appl_CtrlCd, int period)
+        public decimal GetTotalDivertedForPeriod(string appl_EnfSrv_Cd, string appl_CtrlCd, int period)
         {
             var result = 0.0M;
 
@@ -19,10 +21,10 @@ namespace TestData.TestDB
             if (data.Count == 1)
                 result = data[0].Garn_Amt;
 
-            return Task.FromResult(result);
+            return result;
         }
 
-        public Task<decimal> GetTotalFeesDivertedAsync(string appl_EnfSrv_Cd, string appl_CtrlCd, bool isCumulativeFees)
+        public decimal GetTotalFeesDiverted(string appl_EnfSrv_Cd, string appl_CtrlCd, bool isCumulativeFees)
         {
             var lastAnniversaryDate = GetApplicationLastAnniversaryDate(appl_CtrlCd, appl_EnfSrv_Cd);
 
@@ -31,7 +33,7 @@ namespace TestData.TestDB
                           where (fa.Appl_EnfSrv_Cd == appl_EnfSrv_Cd) && (fa.Appl_CtrlCd == appl_CtrlCd) && (df.SummDF_Divert_Dte >= lastAnniversaryDate)
                           select df.SummDF_FeeAmt_Money).Sum();
 
-            return Task.FromResult(result ?? 0.0M);
+            return result ?? 0.0M;
         }
 
         public static DateTime GetApplicationLastAnniversaryDate(string appl_CtrlCd, string appl_EnfSrv_Cd)

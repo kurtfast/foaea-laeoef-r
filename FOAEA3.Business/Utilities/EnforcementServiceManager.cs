@@ -1,22 +1,22 @@
-﻿using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
-using System.Threading.Tasks;
+﻿using FOAEA3.Model.Interfaces;
+using FOAEA3.Model;
+using System.Collections.Generic;
 
 namespace FOAEA3.Business.Utilities
 {
     internal class EnforcementServiceManager
     {
-        private IRepositories DB { get; }
+        private IRepositories Repositories { get; }
 
         public EnforcementServiceManager(IRepositories repositories)
         {
-            DB = repositories;
+            Repositories = repositories;
         }
 
-        public async Task<EnfSrvData> GetEnforcementServiceAsync(string enfSrvCd)
+        internal EnfSrvData GetEnforcementService(string enfSrvCd)
         {
-            IEnfSrvRepository db = DB.EnfSrvTable;
-            var result = await db.GetEnfServiceAsync(enfSrvCd);
+            IEnfSrvRepository db = Repositories.EnfSrvRepository;
+            List<EnfSrvData> result = db.GetEnfService(enfSrvCd);
             if (result.Count == 1)
                 return result[0];
             else

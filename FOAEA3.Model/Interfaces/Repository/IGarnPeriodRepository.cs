@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Threading.Tasks;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface IGarnPeriodRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task<(decimal, decimal)> UpdateGarnPeriodAsync(string applEnfSrvCd, string applCtrlCd, decimal finTrmLumpSumAmt, decimal finTrmPerPymAmt, DateTime calcStartDate,
-                                     decimal lumpDivertedTtl, decimal prdPymtDivertedTtl);
+        public void UpdateGarnPeriod(string applEnfSrvCd, string applCtrlCd, decimal finTrmLumpSumAmt, decimal finTrmPerPymAmt, DateTime calcStartDate,
+                                     ref decimal lumpDivertedTtl, ref decimal prdPymtDivertedTtl);
 
     }
 }

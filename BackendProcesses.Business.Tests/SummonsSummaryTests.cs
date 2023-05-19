@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using TestData.Data;
 using TestData.TestDataBase;
 using Xunit;
@@ -9,7 +8,7 @@ namespace BackendProcesses.Business.Tests
     {
         public SummonsSummaryTests()
         {
-            ApplicationTestData.SetupApplicationTestData(2);
+            ApplicationTestData.SetupApplicationTestData();
             InterceptionFinHoldbackTestData.SetupInterceptionFinHoldbackTestData();
             SummSmryTestData.SetupAmountOwedTestData();
 
@@ -19,14 +18,14 @@ namespace BackendProcesses.Business.Tests
         }
 
         [Fact]
-        public async Task SummonsSummary_GetAmountOwedRecords()
+        public void SummonsSummary_GetAmountOwedRecords()
         {
             // Arrange
             var inMemRepositoryFinance = new InMemory_RepositoriesFinance();
             var summSmryDB = inMemRepositoryFinance.SummonsSummaryRepository;
 
             // Act
-            var data = await summSmryDB.GetAmountOwedRecordsAsync();
+            var data = summSmryDB.GetAmountOwedRecords();
 
             // Assert
             Assert.Single(data);

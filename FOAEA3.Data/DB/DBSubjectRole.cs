@@ -1,28 +1,28 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
+using FOAEA3.Model.Interfaces;
 using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-
+using System.Linq;
 namespace FOAEA3.Data.DB
 {
-    internal class DBSubjectRole : DBbase, ISubjectRoleRepository
+    internal class DBSubjectRole: DBbase, ISubjectRoleRepository
     {
-        public DBSubjectRole(IDBToolsAsync mainDB) : base(mainDB)
+        public DBSubjectRole(IDBTools mainDB) : base(mainDB)
         {
 
         }
-        public async Task<List<SubjectRoleData>> GetAllSubjectRolesAsync()
+        public List<SubjectRoleData> GetAllSubjectRoles()
         {
-            return await MainDB.GetAllDataAsync<SubjectRoleData>("SubjectRole", FillSubjectRoleData);
+            return MainDB.GetAllData<SubjectRoleData>("SubjectRole", FillSubjectRoleData);
         }
 
-        public async Task<List<string>> GetAssumedRolesForSubjectAsync(string subjectName)
+        public List<string> GetAssumedRolesForSubject(string subjectName)
         {
             var assumedRoles = new List<string>();
 
-            foreach (SubjectRoleData subjectRoleData in await GetSubjectRolesAsync(subjectName))
+            foreach (SubjectRoleData subjectRoleData in GetSubjectRoles(subjectName))
             {
                 assumedRoles.Add(subjectRoleData.RoleName);
             }
@@ -30,15 +30,15 @@ namespace FOAEA3.Data.DB
             return assumedRoles;
         }
 
-        public async Task<List<SubjectRoleData>> GetSubjectRolesAsync(string subjectName)
+        public List<SubjectRoleData> GetSubjectRoles(string subjectName)
         {
             var parameters = new Dictionary<string, object>
             {
                 { "SubjectName", subjectName }
             };
 
-            return await MainDB.GetDataFromStoredProcAsync<SubjectRoleData>("UserGetRoleNames", parameters, FillSubjectRoleData);
-
+            return MainDB.GetDataFromStoredProc<SubjectRoleData>("UserGetRoleNames", parameters, FillSubjectRoleData);
+            
         }
         private void FillSubjectRoleData(IDBHelperReader rdr, SubjectRoleData data)
         {

@@ -1,12 +1,11 @@
-﻿using System.Threading.Tasks;
-
-namespace FOAEA3.Model.Interfaces.Repository
+﻿using FOAEA3.Model;
+namespace FOAEA3.Model.Interfaces
 {
     public interface ISubmitterProfileRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task<SubmitterProfileData> GetSubmitterProfileAsync(string submitterCode);
+        SubmitterProfileData GetSubmitterProfile(string submitterCode);
     }
 }

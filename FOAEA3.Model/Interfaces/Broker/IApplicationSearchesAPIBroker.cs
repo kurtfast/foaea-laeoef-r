@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace FOAEA3.Model.Interfaces.Broker
+namespace FOAEA3.Model.Interfaces
 {
     public interface IApplicationSearchesAPIBroker
     {
-        IAPIBrokerHelper ApiHelper { get; }
-        string Token { get; set; }
-
-        Task<List<ApplicationSearchResultData>> SearchAsync(QuickSearchData searchCriteria);
+        List<ApplicationSearchResultData> Search(QuickSearchData searchCriteria);
     }
 }

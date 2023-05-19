@@ -1,54 +1,56 @@
 using FOAEA3.Admin.Business;
 using FOAEA3.Admin.Web.Models;
-using FOAEA3.Common.Helpers;
+using FOAEA3.Model;
 using FOAEA3.Model.Interfaces;
-using FOAEA3.Model.Interfaces.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using System;
-using System.Threading.Tasks;
 
-namespace FOAEA3.Admin.Web.Pages.Tools;
-
-public class SimulateSinConfirmationModel : PageModel
+namespace FOAEA3.Admin.Web.Pages.Tools
 {
-    [BindProperty]
-    public SimulateSinConfirmationData SimulateSinConfirmation { get; set; }
-
-    private readonly IRepositories DB;
-    private readonly IFoaeaConfigurationHelper Config;
-
-    public SimulateSinConfirmationModel(IRepositories repositories)
+    public class SimulateSinConfirmationModel : PageModel
     {
-        Config = new FoaeaConfigurationHelper();
-        DB = repositories;
-    }
+        [BindProperty]
+        public SimulateSinConfirmationData SimulateSinConfirmation { get; set; }
 
-    public void OnGet()
-    {
-    }
+        private readonly IRepositories Repositories;
+        private readonly CustomConfig config;
 
-    public async Task OnPost()
-    {
-        if (ModelState.IsValid)
+        public SimulateSinConfirmationModel(IRepositories repositories, IOptions<CustomConfig> config)
         {
-            var adminManager = new AdminManager(DB, Config);
+            this.config = config.Value;
+            Repositories = repositories;
+        }
 
-            try
-            {
-                var success = await adminManager.ManuallyConfirmSINAsync(SimulateSinConfirmation.EnfService,
-                                                                         SimulateSinConfirmation.ControlCode,
-                                                                         SimulateSinConfirmation.Sin, User);
+        public void OnGet()
+        {
+        }
 
-                if (success)
-                    ViewData["Message"] = $"{SimulateSinConfirmation.EnfService}-{SimulateSinConfirmation.ControlCode}: SIN has been confirmed.";
-                else
-                    ViewData["Error"] = "Error: " + adminManager.LastError;
-            }
-            catch (Exception e)
+        public void OnPost()
+        {
+
+            if (ModelState.IsValid)
             {
-                ViewData["Error"] = "Error: " + e.Message;
+                var adminManager = new AdminManager(Repositories, config);
+
+                try
+                {
+                    var success = adminManager.ManuallyConfirmSIN(SimulateSinConfirmation.EnfService, SimulateSinConfirmation.ControlCode,
+                                                                  SimulateSinConfirmation.Sin);
+
+                    if (success)
+                        ViewData["Message"] = $"{SimulateSinConfirmation.EnfService}-{SimulateSinConfirmation.ControlCode}: SIN has been confirmed.";
+                    else
+                        ViewData["Error"] = "Error: " + adminManager.LastError;
+                }
+                catch (Exception e)
+                {
+                    ViewData["Error"] = "Error: " + e.Message;
+                }
+
             }
+
         }
     }
 }

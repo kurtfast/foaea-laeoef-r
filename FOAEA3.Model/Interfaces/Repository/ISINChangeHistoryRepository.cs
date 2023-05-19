@@ -1,13 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface ISINChangeHistoryRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task<bool> CreateSINChangeHistoryAsync(SINChangeHistoryData data);
+        public bool CreateSINChangeHistory(SINChangeHistoryData data);
 
     }
 }

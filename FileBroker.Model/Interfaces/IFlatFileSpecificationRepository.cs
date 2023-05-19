@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace FileBroker.Model.Interfaces
 {
     public interface IFlatFileSpecificationRepository
     {
-        Task<List<FlatFileSpecificationData>> GetFlatFileSpecificationsForFileAsync(int processId);
+        List<FlatFileSpecificationData> GetFlatFileSpecificationsForFile(int processId);
     }
 }

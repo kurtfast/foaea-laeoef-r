@@ -1,6 +1,8 @@
 ﻿using FOAEA3.Model.Enums;
 using FOAEA3.Model.Interfaces;
-using System.Collections.Concurrent;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace FOAEA3.Model
 {
@@ -16,23 +18,23 @@ namespace FOAEA3.Model
     {
         public MessageDataList Messages { get; set; }
 
-        public ConcurrentDictionary<string, FoaEventData> FoaEvents { get; set; }
+        public Dictionary<string, FoaEventData> FoaEvents { get; set; }
 
         public FoaEventDataDictionary()
         {
             Messages = new MessageDataList();
-            FoaEvents = new ConcurrentDictionary<string, FoaEventData>();
+            FoaEvents = new Dictionary<string, FoaEventData>();
         }
 
         public FoaEventData this[EventCode code]
         {
-            get => FoaEvents[((int)code).ToString()];
-            set => FoaEvents[((int)code).ToString()] = value;
+            get => FoaEvents[code.ToString()];
+            set => FoaEvents[code.ToString()] = value;
         }
 
         public bool ContainsKey(EventCode code)
         {
-            return FoaEvents.ContainsKey(((int)code).ToString());
+            return FoaEvents.ContainsKey(code.ToString());
         }
 
     }

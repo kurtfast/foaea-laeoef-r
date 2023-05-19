@@ -1,10 +1,13 @@
 ﻿using DBHelper;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface IRepositories_Finance
     {
-        public IDBToolsAsync MainDB { get; }
+        public IDBTools MainDB { get; }
 
         public string CurrentSubmitter { get; set; }
 
@@ -18,6 +21,5 @@ namespace FOAEA3.Model.Interfaces.Repository
         public ISummFAFR_DERepository SummFAFR_DERepository { get; }
         public ISummFAFRRepository SummFAFRRepository { get; }
         public IControlBatchRepository ControlBatchRepository { get; }
-        public IFinancialRepository FinancialRepository { get; }
     }
 }

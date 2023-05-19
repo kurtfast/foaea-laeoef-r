@@ -4,75 +4,33 @@ using FileBroker.Model.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FileBroker.Data.DB
 {
     public class DBFileTable : IFileTableRepository
     {
-        public IDBToolsAsync MainDB { get; }
+        private IDBTools MainDB { get; }
 
-        public DBFileTable(IDBToolsAsync mainDB)
+        public DBFileTable(IDBTools mainDB)
         {
             MainDB = mainDB;
         }
 
-        public async Task<FileTableData> GetFileTableDataForFileName(string fileNameNoExt)
+        public FileTableData GetFileTableDataForFileName(string fileNameNoExt)
         {
-            var fileTableData = await MainDB.GetAllDataAsync<FileTableData>("FileTable", FillFileTableDataFromReader);
+            var fileTableData = MainDB.GetAllData<FileTableData>("FileTable", FillFileTableDataFromReader);
 
-            return fileTableData.AsParallel().Where(f => f.Name.ToUpper() == fileNameNoExt.ToUpper()).FirstOrDefault();
-        }
-        
-        public async Task<List<FileTableData>> MessageBrokerSchedulerGetDueProcess(string frequency)
-        {
-            var parameters = new Dictionary<string, object>
-            {
-                { "sFrequency", frequency }
-            };
-
-            var fileTableData = await MainDB.GetDataFromStoredProcAsync<FileTableData>("MessageBrokerSchedulerGetDueProcess", parameters, FillFileTableDataFromReader);
-
-            return fileTableData;
+            return fileTableData.Where(f => f.Name.ToUpper() == fileNameNoExt.ToUpper()).FirstOrDefault();
         }
 
-        public async Task DisableFileProcess(int processId)
+        public List<FileTableData> GetFileTableDataForCategory(string category)
         {
-            var parameters = new Dictionary<string, object>
-            {
-                { "nProcessID", processId },
-                { "bActive", false }
-            };
+            var fileTableData = MainDB.GetAllData<FileTableData>("FileTable", FillFileTableDataFromReader);
 
-            await MainDB.ExecProcAsync("MessageBrokerEnableDisableFileProcess", parameters);
-        }
+            return fileTableData.Where(f => f.Category == category).ToList();
+        }   
 
-        public async Task EnableFileProcess(int processId)
-        {
-            var parameters = new Dictionary<string, object>
-            {
-                { "nProcessID", processId },
-                { "bActive", true }
-            };
-
-            await MainDB.ExecProcAsync("MessageBrokerEnableDisableFileProcess", parameters);
-        }
-
-        public async Task<List<FileTableData>> GetFileTableDataForCategoryAsync(string category)
-        {
-            var fileTableData = await MainDB.GetAllDataAsync<FileTableData>("FileTable", FillFileTableDataFromReader);
-
-            return fileTableData.AsParallel().Where(f => f.Category == category).ToList();
-        }
-
-        public async Task<List<FileTableData>> GetAllActiveAsync()
-        {
-            var fileTableData = await MainDB.GetAllDataAsync<FileTableData>("FileTable", FillFileTableDataFromReader);
-
-            return fileTableData.AsParallel().Where(f => f.Active is true).ToList();
-        }
-
-        public async Task SetNextCycleForFileType(FileTableData fileData, int length = 6)
+        public void SetNextCycleForFileType(FileTableData fileData, int length = 6)
         {
 
             int newCycle = fileData.Cycle + 1;
@@ -86,21 +44,21 @@ namespace FileBroker.Data.DB
                 {"nCycle", newCycle}
             };
 
-            _ = await MainDB.ExecProcAsync("MessageBrokerConfigSetCycle", parameters);
+            _ = MainDB.ExecProc("MessageBrokerConfigSetCycle", parameters);
 
         }
 
-        public async Task<bool> IsFileLoadingAsync(int processId)
+        public bool IsFileLoading(int processId)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"nProcessID", processId}
             };
 
-            return await MainDB.GetDataFromProcSingleValueAsync<bool>("MessageBrokerConfigIsFileLoading", parameters);
+            return MainDB.GetDataFromProcSingleValue<bool>("MessageBrokerConfigIsFileLoading", parameters);
         }
 
-        public async Task SetIsFileLoadingValue(int processId, bool newValue)
+        public void SetIsFileLoadingValue(int processId, bool newValue)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -108,7 +66,7 @@ namespace FileBroker.Data.DB
                 {"isLoading", newValue}
             };
 
-            await MainDB.ExecProcAsync("MessageBrokerConfigSetFileLoadingValue", parameters);
+            MainDB.ExecProc("MessageBrokerConfigSetFileLoadingValue", parameters);
         }
 
         public static void FillFileTableDataFromReader(IDBHelperReader rdr, FileTableData data)

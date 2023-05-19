@@ -1,43 +1,37 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
 using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
     internal class DBSummonsSummary : DBbase, ISummonsSummaryRepository
     {
-        public DBSummonsSummary(IDBToolsAsync mainDB) : base(mainDB)
+        public DBSummonsSummary(IDBTools mainDB) : base(mainDB)
         {
 
         }
-        public async Task<List<SummonsSummaryData>> GetSummonsSummaryAsync(string appl_EnfSrv_Cd = "", string appl_CtrlCd = "", string debtorId = "")
+        public List<SummonsSummaryData> GetSummonsSummary(string appl_EnfSrv_Cd = "", string appl_CtrlCd = "", string debtorId = "")
         {
             var parameters = new Dictionary<string, object>();
             if (!string.IsNullOrEmpty(appl_EnfSrv_Cd)) parameters.Add("Appl_Enfsrv_Cd", appl_EnfSrv_Cd);
             if (!string.IsNullOrEmpty(appl_CtrlCd)) parameters.Add("Appl_CtrlCd", appl_CtrlCd);
             if (!string.IsNullOrEmpty(debtorId)) parameters.Add("DebtorId", debtorId);
 
-            List<SummonsSummaryData> data = await MainDB.GetDataFromStoredProcAsync<SummonsSummaryData>("GetSummSmryInfo", parameters, FillDataFromReader);
+            List<SummonsSummaryData> data = MainDB.GetDataFromStoredProc<SummonsSummaryData>("GetSummSmryInfo", parameters, FillDataFromReader);
 
             return data;
 
         }
 
-        public async Task<List<SummonsSummaryData>> GetAmountOwedRecordsAsync()
+        public List<SummonsSummaryData> GetAmountOwedRecords()
         {
-            return await MainDB.GetDataFromStoredProcAsync<SummonsSummaryData>("GetAmountOwedRecords", FillDataFromReader);
+            return MainDB.GetDataFromStoredProc<SummonsSummaryData>("GetAmountOwedRecords", FillDataFromReader);
         }
 
-         public async Task<List<SummonsSummaryData>> GetFixedAmountRecalcDateRecordsAsync()
-        {
-            return await MainDB.GetDataFromStoredProcAsync<SummonsSummaryData>("GetFixedAmountRecalcDateRecords", FillDataFromReader);
-        }
-
-        public async Task<decimal> GetFeesOwedTotalAsync(int yearsCount, DateTime finTermsEffectiveDate, bool isFeeCumulative)
+        public decimal GetFeesOwedTotal(int yearsCount, DateTime finTermsEffectiveDate, bool isFeeCumulative)
         {
             var parameters = new Dictionary<string, object>
                 {
@@ -46,12 +40,12 @@ namespace FOAEA3.Data.DB
                 };
 
             if (isFeeCumulative)
-                return await MainDB.GetDataFromStoredProcAsync<decimal>("GetFeesOwedTtl", parameters);
+                return MainDB.GetDataFromStoredProc<decimal>("GetFeesOwedTtl", parameters);
             else
-                return await MainDB.GetDataFromStoredProcAsync<decimal>("GetFeesOwedTtlNonCumulative", parameters);
+                return MainDB.GetDataFromStoredProc<decimal>("GetFeesOwedTtlNonCumulative", parameters);
         }
 
-        public async Task CreateSummonsSummaryAsync(SummonsSummaryData summSmryData)
+        public void CreateSummonsSummary(SummonsSummaryData summSmryData)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -85,10 +79,10 @@ namespace FOAEA3.Data.DB
             if (summSmryData.SummSmry_LastCalc_Dte.HasValue)
                 parameters.Add("SummSmry_LastCalc_Dte", summSmryData.SummSmry_LastCalc_Dte);
 
-            _ = await MainDB.ExecProcAsync("SummSmry_Insert", parameters);
+            MainDB.ExecProc("SummSmry_Insert", parameters);
         }
 
-        public async Task UpdateSummonsSummaryAsync(SummonsSummaryData summSmryData)
+        public void UpdateSummonsSummary(SummonsSummaryData summSmryData)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -139,7 +133,7 @@ namespace FOAEA3.Data.DB
                 parameters.Add("SummSmry_Recalc_Dte", DBNull.Value);
 
 
-            _ = await MainDB.ExecProcAsync("SummSmryUpdate", parameters);
+            _ = MainDB.ExecProc("SummSmryUpdate", parameters);
 
         }
 

@@ -1,38 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<Nullable>warnings</Nullable>
-		<Version>1.0.0-alpha</Version>
-	</PropertyGroup>
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Remove="Models\**" />
-		<EmbeddedResource Remove="Models\**" />
-		<None Remove="Models\**" />
-	</ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\FOAEA3.Business\FOAEA3.Business.csproj" />
-		<ProjectReference Include="..\FOAEA3.Data\FOAEA3.Data.csproj" />
-		<ProjectReference Include="..\FOAEA3.Model\FOAEA3.Model.csproj" />
-		<ProjectReference Include="..\FOAEA3.Resources\FOAEA3.Resources.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>FOAEA3.Admin.Business.Tests</_Parameter1>
-		</AssemblyAttribute>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>FOAEA3.Admin</_Parameter1>
-		</AssemblyAttribute>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>FOAEA3.Admin.Web</_Parameter1>
-		</AssemblyAttribute>
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FOAEA3.Business\FOAEA3.Business.csproj" />
+    <ProjectReference Include="..\FOAEA3.Data\FOAEA3.Data.csproj" />
+    <ProjectReference Include="..\FOAEA3.Model\FOAEA3.Model.csproj" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-	</ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>FOAEA3.Admin.Business.Tests</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>FOAEA3.Admin</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>FOAEA3.Admin.Web</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+  </ItemGroup>
 
 </Project>

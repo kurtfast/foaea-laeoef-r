@@ -1,7 +1,8 @@
 ﻿using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Text;
 
 namespace TestData.TestDB
 {
@@ -15,7 +16,7 @@ namespace TestData.TestDB
         public string CurrentSubmitter { get; set; }
         public string UserId { get; set; }
 
-        public Task<SubmitterProfileData> GetSubmitterProfileAsync(string submitterCode)
+        public SubmitterProfileData GetSubmitterProfile(string subjectName)
         {
             throw new NotImplementedException();
         }

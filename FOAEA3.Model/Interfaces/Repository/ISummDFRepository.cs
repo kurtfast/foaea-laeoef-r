@@ -1,6 +1,9 @@
 ﻿using FOAEA3.Model.Base;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface ISummDFRepository
     {

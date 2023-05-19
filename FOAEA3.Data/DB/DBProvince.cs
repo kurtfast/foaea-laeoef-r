@@ -1,22 +1,21 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
+using FOAEA3.Model.Interfaces;
 using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System;
 
 namespace FOAEA3.Data.DB
 {
     internal class DBProvince : DBbase, IProvinceRepository
     {
-        public DBProvince(IDBToolsAsync mainDB) : base(mainDB)
+        public DBProvince(IDBTools mainDB) : base(mainDB)
         {
 
         }
-        public async Task<List<ProvinceData>> GetProvincesAsync()
+        public List<ProvinceData> GetProvinces()
         {
-            var data = await MainDB.GetAllDataAsync<ProvinceData>("Prv", FillProvinceDataFromReader);
+            var data = MainDB.GetAllData<ProvinceData>("Prv", FillProvinceDataFromReader);
 
             if (!string.IsNullOrEmpty(MainDB.LastError))
                 throw new Exception(MainDB.LastError);

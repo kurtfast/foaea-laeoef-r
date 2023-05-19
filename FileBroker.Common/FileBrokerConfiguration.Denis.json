@@ -1,8 +1,0 @@
-{
-  "emailRecipients": "dsarrazi@justice.gc.ca",
-  "opsRecipients": "dsarrazi@justice.gc.ca",
-  "AuditConfig": {
-    "AuditRecipients": "dsarrazi@justice.gc.ca",
-    "AuditRootPath": "C:\\Audit"
-  }
-}

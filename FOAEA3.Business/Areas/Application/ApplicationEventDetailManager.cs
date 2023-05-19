@@ -1,9 +1,8 @@
 ﻿using FOAEA3.Model;
 using FOAEA3.Model.Base;
 using FOAEA3.Model.Enums;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FOAEA3.Business.Areas.Application
 {
@@ -17,44 +16,38 @@ namespace FOAEA3.Business.Areas.Application
         {
             Application = applicationData;
             EventDetails = new List<ApplicationEventDetailData>();
-            EventDetailDB = repositories.ApplicationEventDetailTable;
+            EventDetailDB = repositories.ApplicationEventDetailRepository;
         }
 
-        public async Task<List<ApplicationEventDetailData>> GetApplicationEventDetailsForQueueAsync(EventQueue queue)
+        public List<ApplicationEventDetailData> GetApplicationEventDetailsForQueue(EventQueue queue)
         {
-            return await EventDetailDB.GetApplicationEventDetailsAsync(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd, queue);
+            return EventDetailDB.GetApplicationEventDetails(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd, queue);
         }
 
-        public async Task<bool> SaveEventDetailsAsync()
+        public bool SaveEventDetails()
         {
-            return await EventDetailDB.SaveEventDetailsAsync(EventDetails);
+            return EventDetailDB.SaveEventDetails(EventDetails);
         }
 
-        public async Task<bool> SaveEventDetailAsync(ApplicationEventDetailData eventDetailData)
+        public bool SaveEventDetail(ApplicationEventDetailData eventDetailData)
         {
-            return await EventDetailDB.SaveEventDetailAsync(eventDetailData);
+            return EventDetailDB.SaveEventDetail(eventDetailData);
         }
 
-        public async Task UpdateOutboundEventDetailAsync(string activeState, string applicationState, string enfSrvCode,
+        public void UpdateOutboundEventDetail(string activeState, string applicationState, string enfSrvCode,
                                               string writtenFile, List<int> eventIds)
         {
-            await EventDetailDB.UpdateOutboundEventDetailAsync(activeState, applicationState, enfSrvCode, writtenFile, eventIds);
+            EventDetailDB.UpdateOutboundEventDetail(activeState, applicationState, enfSrvCode, writtenFile, eventIds);
         }
 
-        public async Task<DataList<ApplicationEventDetailData>> GetRequestedSINEventDetailDataForFileAsync(string enfSrv_Cd, string fileName)
+        public DataList<ApplicationEventDetailData> GetRequestedSINEventDetailDataForFile(string enfSrv_Cd, string fileName)
         {
-            return await EventDetailDB.GetRequestedSINEventDetailDataForFileAsync(enfSrv_Cd, fileName);
+            return EventDetailDB.GetRequestedSINEventDetailDataForFile(enfSrv_Cd, fileName);
         }
 
-        public async Task<List<ApplicationEventDetailData>> GetActiveTracingEventDetailsAsync(string enfSrv_Cd, string cycle)
+        public List<ApplicationEventDetailData> GetActiveTracingEventDetails(string enfSrv_Cd, string cycle)
         {
-            return await EventDetailDB.GetActiveTracingEventDetailsAsync(enfSrv_Cd, cycle);
-        }
-
-        public async Task<List<ApplicationEventDetailData>> GetRequestedLICINLicenceDenialEventDetailsAsync(string enfSrv_Cd, string appl_EnfSrv_Cd,
-                                                                       string appl_CtrlCd)
-        {
-            return await EventDetailDB.GetRequestedLICINLicenceDenialEventDetailsAsync(enfSrv_Cd, appl_EnfSrv_Cd, appl_CtrlCd);
+            return EventDetailDB.GetActiveTracingEventDetails(enfSrv_Cd, cycle);
         }
     }
 }

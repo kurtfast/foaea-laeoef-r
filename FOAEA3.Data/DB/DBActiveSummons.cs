@@ -1,22 +1,21 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
 using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
     internal class DBActiveSummons : DBbase, IActiveSummonsRepository
     {
-        public DBActiveSummons(IDBToolsAsync mainDB) : base(mainDB)
+        public DBActiveSummons(IDBTools mainDB) : base(mainDB)
         {
 
         }
 
-        public async Task<ActiveSummonsCoreData> GetActiveSummonsCoreAsync(DateTime payableDate, string appl_EnfSrv_Cd, string appl_CtrlCd)
+        public ActiveSummonsCoreData GetActiveSummonsCore(DateTime payableDate, string appl_EnfSrv_Cd, string appl_CtrlCd)
         {
             var parameters = new Dictionary<string, object>
                 {
@@ -26,12 +25,12 @@ namespace FOAEA3.Data.DB
                 };
 
             List<ActiveSummonsCoreData> data;
-            data = await MainDB.GetDataFromStoredProcAsync<ActiveSummonsCoreData>("GetActSummonsForOwedOrVary", parameters, FillDataFromReader);
+            data = MainDB.GetDataFromStoredProc<ActiveSummonsCoreData>("GetActSummonsForOwedOrVary", parameters, FillDataFromReader);
 
             return data.FirstOrDefault();
         }
 
-        public async Task<ActiveSummonsData> GetActiveSummonsDataAsync(DateTime payableDate, string appl_CtrlCd, string appl_EnfSrv_Cd, bool isVariation = false)
+        public ActiveSummonsData GetActiveSummonsData(DateTime payableDate, string appl_CtrlCd, string appl_EnfSrv_Cd, bool isVariation = false)
         {
             var parameters = new Dictionary<string, object>
                 {
@@ -43,14 +42,14 @@ namespace FOAEA3.Data.DB
 
             List<ActiveSummonsData> data;
             if (!isVariation)
-                data = await MainDB.GetDataFromStoredProcAsync<ActiveSummonsData>("GetActiveSummonsesForDebtor", parameters, FillDataFromReaderForActiveDebtor);
+                data = MainDB.GetDataFromStoredProc<ActiveSummonsData>("GetActiveSummonsesForDebtor", parameters, FillDataFromReaderForActiveDebtor);
             else
-                data = await MainDB.GetDataFromStoredProcAsync<ActiveSummonsData>("GetPendingSummonsesForDebtor", parameters, FillDataFromReaderForActiveDebtor);
+                data = MainDB.GetDataFromStoredProc<ActiveSummonsData>("GetPendingSummonsesForDebtor", parameters, FillDataFromReaderForActiveDebtor);
 
             return data.FirstOrDefault();
         }
 
-        public async Task<DateTime> GetLegalDateAsync(string appl_CtrlCd, string appl_EnfSrv_Cd)
+        public DateTime GetLegalDate(string appl_CtrlCd, string appl_EnfSrv_Cd)
         {
             var parameters = new Dictionary<string, object>
                 {
@@ -58,7 +57,7 @@ namespace FOAEA3.Data.DB
                     {"Appl_CtrlCd", appl_CtrlCd }
                 };
 
-            return await MainDB.GetDataFromStoredProcAsync<DateTime>("Appl_GetLegalDate", parameters);
+            return MainDB.GetDataFromStoredProc<DateTime>("Appl_GetLegalDate", parameters);
         }
 
         // 
@@ -77,8 +76,7 @@ namespace FOAEA3.Data.DB
             data.IntFinH_PerPym_Money = rdr["IntFinH_PerPym_Money"] as decimal?; // can be null 
             data.IntFinH_MxmTtl_Money = rdr["IntFinH_MxmTtl_Money"] as decimal?; // can be null 
             data.PymPr_Cd = rdr["PymPr_Cd"] as string; // can be null 
-            if (rdr.ColumnExists("IntFinH_NextRecalcDate_Cd"))
-                data.IntFinH_NextRecalcDate_Cd = rdr["IntFinH_NextRecalcDate_Cd"] as int?;
+            data.IntFinH_NextRecalcDate_Cd = rdr["IntFinH_NextRecalcDate_Cd"] as int?;
             data.IntFinH_CmlPrPym_Ind = rdr["IntFinH_CmlPrPym_Ind"] as byte?; // can be null 
             data.HldbCtg_Cd = rdr["HldbCtg_Cd"] as string;
             data.IntFinH_DefHldbPrcnt = rdr["IntFinH_DefHldbPrcnt"] as int?; // can be null 

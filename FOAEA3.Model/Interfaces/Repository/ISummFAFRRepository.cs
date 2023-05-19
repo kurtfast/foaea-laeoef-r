@@ -1,15 +1,16 @@
 ﻿using FOAEA3.Model.Base;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface ISummFAFRRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task<DataList<SummFAFR_Data>> GetSummFaFrAsync(int summFAFR_Id);
-        Task<DataList<SummFAFR_Data>> GetSummFaFrListAsync(List<SummFAFR_DE_Data> summFAFRs);
+        public DataList<SummFAFR_Data> GetSummFaFr(int summFAFR_Id);
+        public DataList<SummFAFR_Data> GetSummFaFrList(List<SummFAFR_DE_Data> summFAFRs);
     }
 }

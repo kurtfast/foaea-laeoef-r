@@ -1,23 +1,22 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
 using FOAEA3.Model.Structs;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
     internal class DBPostalCode : DBbase, IPostalCodeRepository
     {
-        public DBPostalCode(IDBToolsAsync mainDB) : base(mainDB)
+        public DBPostalCode(IDBTools mainDB) : base(mainDB)
         {
 
         }
 
-        public async Task<(bool, string, PostalCodeFlag)> ValidatePostalCodeAsync(string postalCode, string provinceCode, string cityName)
+        public bool ValidatePostalCode(string postalCode, string provinceCode, string cityName,
+                                       out string validProvCode,
+                                       out PostalCodeFlag validFlags)
         {
-            PostalCodeFlag validFlags;
-
             var parameters = new Dictionary<string, object>
             {
                 { "PostalCode", postalCode },
@@ -31,27 +30,19 @@ namespace FOAEA3.Data.DB
                 {"Results", "C3" }
             };
 
-            var result = await MainDB.GetDataFromStoredProcViaReturnParametersAsync("fp_ValidatePostalCode", parameters, returnParameters);
+            var result = MainDB.GetDataFromStoredProcViaReturnParameters("fp_ValidatePostalCode", parameters, returnParameters);
 
-            string validProvCode = result["ValidProvCode"] as string;
+            validProvCode = result["ValidProvCode"] as string;
             string validFlagString = result["Results"] as string;
 
-            if ((validFlagString is not null) && (validFlagString.Length >= 3))
-                validFlags = new PostalCodeFlag
-                {
-                    IsPostalCodeValid = validFlagString[0] == '1',
-                    IsProvinceValid = validFlagString[1] == '1',
-                    IsCityNameValid = validFlagString[2] == '1',
-                };
-            else
-                validFlags = new PostalCodeFlag
-                {
-                    IsPostalCodeValid = false,
-                    IsProvinceValid = false,
-                    IsCityNameValid = false,
-                };
+            validFlags = new PostalCodeFlag
+            {
+                IsPostalCodeValid = validFlagString[0] == '1',
+                IsProvinceValid = validFlagString[1] == '1',
+                IsCityNameValid = validFlagString[2] == '1',
+            };
 
-            return (validFlags.IsPostalCodeValid, validProvCode, validFlags);
+            return validFlags.IsPostalCodeValid;
         }
     }
 }

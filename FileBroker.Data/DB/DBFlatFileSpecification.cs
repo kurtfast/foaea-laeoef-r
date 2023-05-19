@@ -2,7 +2,6 @@
 using FileBroker.Model;
 using FileBroker.Model.Interfaces;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FileBroker.Data.DB
 {
@@ -10,21 +9,21 @@ namespace FileBroker.Data.DB
     public class DBFlatFileSpecification : IFlatFileSpecificationRepository
     {
 
-        private IDBToolsAsync MainDB { get; }
+        private IDBTools MainDB { get; }
 
-        public DBFlatFileSpecification(IDBToolsAsync mainDB)
+        public DBFlatFileSpecification(IDBTools mainDB)
         {
             MainDB = mainDB;
         }
 
-        public async Task<List<FlatFileSpecificationData>> GetFlatFileSpecificationsForFileAsync(int processId)
+        public List<FlatFileSpecificationData> GetFlatFileSpecificationsForFile(int processId)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"PrcsProcess_Cd", processId}
             };
 
-            return await MainDB.GetDataFromStoredProcAsync<FlatFileSpecificationData>("GetPrcsImpExp", parameters, FillDataFromReader);
+            return MainDB.GetDataFromStoredProc<FlatFileSpecificationData>("GetPrcsImpExp", parameters, FillDataFromReader);
         }
 
         private void FillDataFromReader(IDBHelperReader rdr, FlatFileSpecificationData data)

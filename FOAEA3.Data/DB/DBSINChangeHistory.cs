@@ -1,21 +1,23 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
 using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
     internal class DBSINChangeHistory : DBbase, ISINChangeHistoryRepository
     {
-        public DBSINChangeHistory(IDBToolsAsync mainDB) : base(mainDB)
+        public DBSINChangeHistory(IDBTools mainDB) : base(mainDB)
         {
 
         }
-
-        public async Task<bool> CreateSINChangeHistoryAsync(SINChangeHistoryData data)
+        
+        public bool CreateSINChangeHistory(SINChangeHistoryData data)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -32,7 +34,7 @@ namespace FOAEA3.Data.DB
             if (!string.IsNullOrEmpty(data.SINChangeHistoryUser))
                 parameters.Add("SINChangeHistoryUser", data.SINChangeHistoryUser);
 
-            await MainDB.ExecProcAsync("InsertSINChangeHistory", parameters);
+            MainDB.ExecProc("InsertSINChangeHistory", parameters);
 
             if (!string.IsNullOrEmpty(MainDB.LastError))
             {

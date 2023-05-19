@@ -1,38 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<Nullable>warnings</Nullable>
-		<Version>1.0.0-alpha</Version>
-	</PropertyGroup>
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <Configurations>Debug;Release;FileBroker Debug;BackendProcesses Debug;FOAEA Debug;Ops Debug;Tests</Configurations>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugType>full</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\DBHelperCore\DBHelperCore.csproj" />
-		<ProjectReference Include="..\FOAEA3.Model\FOAEA3.Model.csproj" />
-		<ProjectReference Include="..\FOAEA3.Resources\FOAEA3.Resources.csproj" />
-	</ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>BackendProcesses.CommandLine</_Parameter1>
-		</AssemblyAttribute>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>FOAEA3.Admin.Web</_Parameter1>
-		</AssemblyAttribute>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>FOAEA3.Business</_Parameter1>
-		</AssemblyAttribute>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>FOAEA3.Business.Tests</_Parameter1>
-		</AssemblyAttribute>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>FOAEA3.Common</_Parameter1>
-		</AssemblyAttribute>
-	</ItemGroup>
-	
+  <ItemGroup>
+    <ProjectReference Include="..\DBHelperCore\DBHelperCore.csproj" />
+    <ProjectReference Include="..\FOAEA3.Model\FOAEA3.Model.csproj" />
+    <ProjectReference Include="..\FOAEA3.Resources\FOAEA3.Resources.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>BackendProcesses.Business</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>FOAEA3.Business</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>FOAEA3.Business.Tests</_Parameter1>
+    </AssemblyAttribute>    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>FileBroker.Business.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>

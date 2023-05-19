@@ -2,20 +2,20 @@
 using FOAEA3.Data.Base;
 using FOAEA3.Model;
 using FOAEA3.Model.Enums;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
-    internal class DBAccessAudit : DBbase, IAccessAuditRepository
+    public class DBAccessAudit : DBbase, IAccessAuditRepository
     {
-        public DBAccessAudit(IDBToolsAsync mainDB) : base(mainDB)
+        public DBAccessAudit(IDBTools mainDB) : base(mainDB)
         {
 
         }
 
-        public async Task<int> SaveDataPageInfoAsync(AccessAuditPage auditPage, string subject_submitter)
+        public int SaveDataPageInfo(AccessAuditPage auditPage, string subject_submitter)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -23,15 +23,15 @@ namespace FOAEA3.Data.DB
                 {"UserID", subject_submitter }
             };
 
-            decimal returnValue = await MainDB.GetDataFromProcSingleValueAsync<decimal>("AccessAuditDataHeader_Insert", parameters);
+            decimal returnValue = MainDB.GetDataFromProcSingleValue<decimal>("AccessAuditDataHeader_Insert", parameters);
 
             if (!string.IsNullOrEmpty(MainDB.LastError))
-                await LogErrorAsync(MainDB.LastError);
+                LogError(MainDB.LastError);
 
-            return (int)returnValue;
+            return (int) returnValue;
         }
 
-        public async Task SaveDataValueAsync(int pageId, string key, string value)
+        public void SaveDataValue(int pageId, string key, string value)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -40,25 +40,25 @@ namespace FOAEA3.Data.DB
                 {"ElementValue", value }
             };
 
-            await MainDB.ExecProcAsync("AccessAuditDataElementValue_Insert", parameters);
+            MainDB.ExecProc("AccessAuditDataElementValue_Insert", parameters);
 
             if (!string.IsNullOrEmpty(MainDB.LastError))
-                await LogErrorAsync(MainDB.LastError);
+                LogError(MainDB.LastError);
         }
 
-        public async Task<List<AccessAuditElementTypeData>> GetAllElementAccessTypeAsync()
+        public List<AccessAuditElementTypeData> GetAllElementAccessType()
         {
-            return await MainDB.GetAllDataAsync<AccessAuditElementTypeData>("AccessAuditDataElementValueType", FillAccessAuditElementTypeData);
+            return MainDB.GetAllData<AccessAuditElementTypeData>("AccessAuditDataElementValueType", FillAccessAuditElementTypeData);
         }
 
-        private async Task LogErrorAsync(string errorMessage)
+        private void LogError(string errorMessage)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"ErrorString", errorMessage }
             };
 
-            await MainDB.ExecProcAsync("AccessAuditDataErrorLog_insert", parameters);
+            MainDB.ExecProc("AccessAuditDataErrorLog_insert", parameters);
         }
 
         private void FillAccessAuditElementTypeData(IDBHelperReader rdr, AccessAuditElementTypeData data)

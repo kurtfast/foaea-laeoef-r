@@ -1,40 +1,35 @@
 ﻿using FOAEA3.Business.Security;
-using FOAEA3.Common;
+using FOAEA3.Common.Helpers;
 using FOAEA3.Model;
-using FOAEA3.Model.Constants;
-using FOAEA3.Model.Interfaces.Repository;
-using Microsoft.AspNetCore.Authorization;
+using FOAEA3.Model.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FOAEA3.API.Areas.Administration.Controllers;
-
-[ApiController]
-[Route("api/v1/[controller]")]
-public class SubmitterProfilesController : FoaeaControllerBase
+namespace FOAEA3.API.Areas.Administration.Controllers
 {
-
-    [HttpGet("Version")]
-    public ActionResult<string> GetVersion() => Ok("SubmitterProfiles API Version 1.0");
-
-    [HttpGet("DB")]
-    [Authorize(Roles = Roles.Admin)]
-    public ActionResult<string> GetDatabase([FromServices] IRepositories repositories) => Ok(repositories.MainDB.ConnectionString);
-
-    [HttpGet("{submCd}")]
-    public async Task<ActionResult<SubmitterProfileData>> GetSubmitterProfile([FromRoute] string submCd, [FromServices] IRepositories repositories)
+    [ApiController]
+    [Route("api/v1/[controller]")]
+    public class SubmitterProfilesController : ControllerBase
     {
-        var submitterProfileManager = new SubmitterProfileManager(repositories);
-        var submitter = await submitterProfileManager.GetSubmitterProfileAsync(submCd);
 
-        if (submitter != null)
+        [HttpGet("{submCd}")]
+        public ActionResult<SubmitterProfileData> GetSubmitterProfile([FromRoute] string submCd, [FromServices] IRepositories repositories)
         {
-            return Ok(submitter);
-        }
-        else
-        {
-            return NotFound();
+            APIHelper.ApplyRequestHeaders(repositories, Request.Headers);
+            APIHelper.PrepareResponseHeaders(Response.Headers);
+
+            var submitterProfileManager = new SubmitterProfileManager(repositories);
+            var submitter = submitterProfileManager.GetSubmitterProfile(submCd);
+
+            if (submitter != null)
+            {
+                return Ok(submitter);
+            }
+            else
+            {
+                return NotFound();
+            }
+
         }
 
     }
-
 }

@@ -1,10 +1,10 @@
-﻿using FOAEA3.Business.BackendProcesses;
+﻿using BackendProcesses.Business;
 using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System;
-using System.Threading.Tasks;
 
 namespace BackendProcess.API.Controllers
 {
@@ -13,20 +13,23 @@ namespace BackendProcess.API.Controllers
     public class ApplicationsAmountOwedController : ControllerBase
     {
         [HttpGet("Version")]
-        public ActionResult<string> Version() => Ok($"Applications Amount Owed API Version 1.5");
-
-        [HttpGet("DB")]
-        public ActionResult<string> GetDatabase([FromServices] IRepositories repositories) => Ok(repositories.MainDB.ConnectionString);
+        public ActionResult<string> Version()
+        {
+            return Ok("Applications Amount Owed API Version 1.4");
+        }
 
         [HttpPut("")]
-        public async Task<ActionResult<string>> RunAmountOwed([FromServices] IRepositories repositories, [FromServices] IRepositories_Finance repositoriesFinance)
+        public ActionResult<string> RunAmountOwed([FromServices] IRepositories repositories, [FromServices] IRepositories_Finance repositoriesFinance)
         {
             repositories.CurrentSubmitter = "";
+
+            ILogger log = Log.ForContext("APIpath", HttpContext.Request.Path.Value);
+            log.Information("(PUT) method RunAmountOwed(): referer = {referer}", Request.Headers["Referer"]);
 
             var startTime = DateTime.Now;
 
             var amountOwedProcess = new AmountOwedProcess(repositories, repositoriesFinance);
-            await amountOwedProcess.RunAsync();
+            amountOwedProcess.Run();
 
             var endTime = DateTime.Now;
 
@@ -36,9 +39,12 @@ namespace BackendProcess.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SummonsSummaryData>> CalculateAmountOwed(string id, [FromServices] IRepositories repositories, [FromServices] IRepositories_Finance repositoriesFinance)
+        public ActionResult<SummonsSummaryData> CalculateAmountOwed(string id, [FromServices] IRepositories repositories, [FromServices] IRepositories_Finance repositoriesFinance)
         {
             repositories.CurrentSubmitter = "";
+
+            ILogger log = Log.ForContext("APIpath", HttpContext.Request.Path.Value);
+            log.Information("(PUT) method CalculateAmountOwed({id}): referer = {referer}", id, Request.Headers["Referer"]);
 
             string[] values = id.Split("-");
             if (values.Length == 2)
@@ -47,7 +53,7 @@ namespace BackendProcess.API.Controllers
                 string ctrlCd = values[1];
 
                 var amountOwedProcess = new AmountOwedProcess(repositories, repositoriesFinance);
-                var (summSmryNewData, _) = await amountOwedProcess.CalculateAndUpdateAmountOwedForVariationAsync(enfSrv, ctrlCd);
+                var (summSmryNewData, _) = amountOwedProcess.CalculateAndUpdateAmountOwedForVariation(enfSrv, ctrlCd);
 
                 if (summSmryNewData != null)
                 {

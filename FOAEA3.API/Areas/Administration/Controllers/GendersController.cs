@@ -1,32 +1,30 @@
-﻿using FOAEA3.Common;
-using FOAEA3.Data.Base;
+﻿using FOAEA3.Data.Base;
+using FOAEA3.Data.DB;
 using FOAEA3.Model;
 using FOAEA3.Model.Base;
-using FOAEA3.Model.Constants;
-using FOAEA3.Model.Interfaces.Repository;
-using Microsoft.AspNetCore.Authorization;
+using FOAEA3.Model.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
-namespace FOAEA3.API.Areas.Administration.Controllers;
-
-[ApiController]
-[Route("api/v1/[controller]")]
-public class GendersController : FoaeaControllerBase
+namespace FOAEA3.API.Areas.Administration.Controllers
 {
-    [HttpGet("Version")]
-    public ActionResult<string> GetVersion() => Ok("Genders API Version 1.0");
-
-    [HttpGet("DB")]
-    [Authorize(Roles = Roles.Admin)]
-    public ActionResult<string> GetDatabase([FromServices] IRepositories repositories) => Ok(repositories.MainDB.ConnectionString);
-
-    [HttpGet]
-    public ActionResult<DataList<GenderData>> GetGenders()
+    [ApiController]
+    [Route("api/v1/[controller]")]
+    public class GendersController : ControllerBase
     {
-        List<GenderData> items = ReferenceData.Instance().Genders.Values.ToList();
-        items.Sort();
-        var data = new DataList<GenderData>(items, string.Empty);
+        [HttpGet]
+        public ActionResult<DataList<GenderData>> GetGenders([FromServices] IGenderRepository genderRepository)
+        {
+            if (Request.Headers.ContainsKey("CurrentSubmitter"))
+                genderRepository.CurrentSubmitter = Request.Headers["CurrentSubmitter"];
 
-        return Ok(data);
+            if (Request.Headers.ContainsKey("CurrentSubject"))
+                genderRepository.UserId = Request.Headers["CurrentSubject"];
+
+            var data = genderRepository.GetGenders();
+
+            return Ok(data);
+        }
     }
 }

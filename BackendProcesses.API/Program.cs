@@ -1,10 +1,10 @@
-using FOAEA3.Common.Helpers;
-using FOAEA3.Model.Interfaces;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
+using Serilog.Sinks.MSSqlServer.Sinks.MSSqlServer.Options;
 using System;
 using System.Collections.ObjectModel;
 using System.Data;
@@ -17,15 +17,26 @@ namespace BackendProcesses.API
         {
             string aspnetCoreEnvironment = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-            var config = new FoaeaConfigurationHelper(args);
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{aspnetCoreEnvironment}.json", optional: true, reloadOnChange: true)
+                .Build();
 
+            string logPath = config["FileLogPath"];
             LoggerConfiguration logConfig = SetupLogConfiguration(config);
+
+            // also log to a text file (if path is specified in appsettings)
+
+            if (!string.IsNullOrEmpty(logPath))
+                logConfig = logConfig.WriteTo.File(logPath,
+                                                   rollingInterval: RollingInterval.Day,
+                                                   outputTemplate: "API: {Timestamp} {Message}{NewLine:1}{Exception:1}");
 
             Log.Logger = logConfig.CreateLogger();
 
             try
             {
-                Log.Information("Starting API BackendProcesses");
+                Log.Information("BackendProcess.API Starting.");
                 CreateHostBuilder(args).Build().Run();
             }
             catch (Exception ex)
@@ -46,7 +57,7 @@ namespace BackendProcesses.API
                     webBuilder.UseStartup<Startup>();
                 });
 
-        private static LoggerConfiguration SetupLogConfiguration(IFoaeaConfigurationHelper config)
+        private static LoggerConfiguration SetupLogConfiguration(IConfigurationRoot config)
         {
             var logConfig = new LoggerConfiguration()
                             .MinimumLevel.Information()
@@ -77,7 +88,7 @@ namespace BackendProcesses.API
             // log to SQL Server table
 
             logConfig = logConfig.WriteTo.MSSqlServer(
-                           connectionString: config.FoaeaConnection,
+                           connectionString: config["ConnectionStrings:FOAEAMain"],
                            restrictedToMinimumLevel: LogEventLevel.Information,
                            sinkOptions: sqlSinkOpts,
                            columnOptions: sqlColumnOpts);

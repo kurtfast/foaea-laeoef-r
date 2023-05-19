@@ -1,27 +1,26 @@
 ﻿using FOAEA3.Model;
 using FOAEA3.Model.Enums;
-using FOAEA3.Model.Interfaces.Repository;
-using System.Threading.Tasks;
+using FOAEA3.Model.Interfaces;
 
 namespace FOAEA3.Business.Security
 {
     public class FailedSubmitAuditManager
     {
-        private readonly IRepositories DB;
+        private readonly IRepositories Repositories;
         private readonly ApplicationData Application;
 
         public FailedSubmitAuditManager(IRepositories repositories, ApplicationData application)
         {
-            DB = repositories;
+            Repositories = repositories;
             Application = application;
         }
 
-        public async Task AddToFailedSubmitAuditAsync(FailedSubmitActivityAreaType activityType)
+        public void AddToFailedSubmitAudit(FailedSubmitActivityAreaType activityType)
         {
-            string subject_submitter = $"{DB.CurrentUser} ({DB.CurrentSubmitter})";
+            string subject_submitter = $"{Repositories.CurrentUser} ({Repositories.CurrentSubmitter})";
 
             foreach (var errorInfo in Application.Messages.GetMessagesForType(MessageType.Error))
-                await DB.FailedSubmitAuditTable.AppendFiledSubmitAuditAsync(subject_submitter, activityType, errorInfo.Description);
+                Repositories.FailedSubmitAuditRepository.AppendFiledSubmitAudit(subject_submitter, activityType, errorInfo.Description);
 
         }
 

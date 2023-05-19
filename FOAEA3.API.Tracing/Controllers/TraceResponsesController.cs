@@ -1,61 +1,74 @@
 ﻿using FOAEA3.Business.Areas.Application;
-using FOAEA3.Common;
 using FOAEA3.Common.Helpers;
 using FOAEA3.Model;
 using FOAEA3.Model.Base;
-using FOAEA3.Model.Constants;
-using FOAEA3.Model.Interfaces.Repository;
-using Microsoft.AspNetCore.Authorization;
+using FOAEA3.Model.Interfaces;
+using FOAEA3.Resources.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 
-namespace FOAEA3.API.Tracing.Controllers;
-
-[Route("api/v1/[controller]")]
-[ApiController]
-public class TraceResponsesController : FoaeaControllerBase
+namespace FOAEA3.API.Tracing.Controllers
 {
-    [HttpGet("Version")]
-    public ActionResult<string> GetVersion() => Ok("TraceResponses API Version 1.0");
-
-    [HttpGet("DB")]
-    [Authorize(Roles = Roles.Admin)]
-    public ActionResult<string> GetDatabase([FromServices] IRepositories repositories) => Ok(repositories.MainDB.ConnectionString);
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<DataList<TraceResponseData>>> GetTraceResults([FromRoute] ApplKey id,
-                                                                     [FromServices] IRepositories repositories)
+    [Route("api/v1/[controller]")]
+    [ApiController]
+    public class TraceResponsesController : ControllerBase
     {
-        var manager = new TracingManager(repositories, config, User);
+        private readonly CustomConfig config;
 
-        if (await manager.LoadApplicationAsync(id.EnfSrv, id.CtrlCd))
-            return Ok(await manager.GetTraceResultsAsync());
-        else
-            return NotFound();
-    }
+        public TraceResponsesController(IOptions<CustomConfig> config)
+        {
+            this.config = config.Value;
+        }
 
-    [HttpPost("bulk")]
-    public async Task<ActionResult<int>> CreateTraceResponsesBulk([FromServices] IRepositories repositories)
-    {
-        var responseData = await APIBrokerHelper.GetDataFromRequestBodyAsync<List<TraceResponseData>>(Request);
+        [HttpGet("{id}")]
+        public ActionResult<DataList<TraceResponseData>> GetTraceResults([FromRoute] string id,
+                                                                         [FromServices] IRepositories repositories)
+        {
+            APIHelper.ApplyRequestHeaders(repositories, Request.Headers);
+            APIHelper.PrepareResponseHeaders(Response.Headers);
 
-        var tracingManager = new TracingManager(repositories, config, User);
+            var applKey = new ApplKey(id);
 
-        await tracingManager.CreateResponseDataAsync(responseData);
+            var manager = new TracingManager(repositories, config);
 
-        var rootPath = "https://" + HttpContext.Request.Host.ToString();
+            if (manager.LoadApplication(applKey.EnfSrv, applKey.CtrlCd))
+                return Ok(manager.GetTraceResults());
+            else
+                return NotFound();
+        }
 
-        return Created(rootPath, new TraceResponseData());
+        [HttpPost("bulk")]
+        public ActionResult<int> CreateTraceResponsesBulk([FromServices] IRepositories repositories)
+        {
+            APIHelper.ApplyRequestHeaders(repositories, Request.Headers);
+            APIHelper.PrepareResponseHeaders(Response.Headers);
 
-    }
+            var responseData = APIBrokerHelper.GetDataFromRequestBody<List<TraceResponseData>>(Request);
 
-    [HttpPut("MarkResultsAsViewed")]
-    public async Task<ActionResult<int>> MarkTraceResponsesAsViewed([FromServices] IRepositories repositories,
-                                                                    [FromQuery] string enfService)
-    {
-        var tracingManager = new TracingManager(repositories, config, User);
+            var tracingManager = new TracingManager(repositories, config);
 
-        await tracingManager.MarkResponsesAsViewedAsync(enfService);
+            tracingManager.CreateResponseData(responseData);
 
-        return Ok();
+            var rootPath = "http://" + HttpContext.Request.Host.ToString();
+
+            return Created(rootPath, new TraceResponseData());
+
+        }
+
+        [HttpPut("MarkResultsAsViewed")]
+        public ActionResult<int> MarkTraceResponsesAsViewed([FromServices] IRepositories repositories,
+                                                            [FromQuery] string enfService)
+        {
+            APIHelper.ApplyRequestHeaders(repositories, Request.Headers);
+            APIHelper.PrepareResponseHeaders(Response.Headers);
+
+            var tracingManager = new TracingManager(repositories, config);
+
+            tracingManager.MarkResponsesAsViewed(enfService);
+
+            return Ok();
+        }
     }
 }

@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface ISubjectRoleRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task<List<SubjectRoleData>> GetSubjectRolesAsync(string subjectName);
-        Task<List<string>> GetAssumedRolesForSubjectAsync(string subjectName);
+        List<SubjectRoleData> GetSubjectRoles(string subjectName);
+        List<string> GetAssumedRolesForSubject(string subjectName);
     }
 }

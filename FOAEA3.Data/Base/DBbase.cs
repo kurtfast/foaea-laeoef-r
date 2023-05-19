@@ -4,7 +4,7 @@ namespace FOAEA3.Data.Base
 {
     public class DBbase
     {
-        public readonly IDBToolsAsync MainDB;
+        public readonly IDBTools MainDB;
 
         public string CurrentSubmitter 
         {
@@ -18,7 +18,7 @@ namespace FOAEA3.Data.Base
             set => MainDB.UserId = value;
         }
 
-        public DBbase(IDBToolsAsync mainDB)
+        public DBbase(IDBTools mainDB)
         {
             MainDB = mainDB;
         }

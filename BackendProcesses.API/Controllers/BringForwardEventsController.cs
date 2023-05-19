@@ -1,11 +1,10 @@
-﻿using FOAEA3.Business.BackendProcesses;
-using FOAEA3.Common.Helpers;
+﻿using BackendProcesses.Business;
+using FOAEA3.Model;
 using FOAEA3.Model.Interfaces;
-using FOAEA3.Model.Interfaces.Repository;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Serilog;
 using System;
-using System.Threading.Tasks;
 
 namespace BackendProcesses.API.Controllers
 {
@@ -13,26 +12,20 @@ namespace BackendProcesses.API.Controllers
     [ApiController]
     public class BringForwardEventsController : Controller
     {
-        private readonly IFoaeaConfigurationHelper config;
+        private readonly CustomConfig config;
 
-        public BringForwardEventsController()
+        public BringForwardEventsController(IOptions<CustomConfig> config)
         {
-            var configHelper = new FoaeaConfigurationHelper();
-            config = configHelper;
+            this.config = config.Value;
         }
 
-        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
-        [HttpGet("Version")]
-        public ActionResult<string> Version() => Ok("BringForwardEvents API Version 1.4");
-
         [HttpPut("")]
-        public async Task<ActionResult<string>> RunBringForward([FromServices] IRepositories repositories,
-                                                                [FromServices] IRepositories_Finance repositoriesFinance)
+        public ActionResult<string> RunBringForward([FromServices] IRepositories repositories)
         {
             repositories.CurrentSubmitter = "";
 
@@ -41,8 +34,8 @@ namespace BackendProcesses.API.Controllers
 
             var startTime = DateTime.Now;
 
-            var bringForwardProcess = new BringForwardEventProcess(repositories, repositoriesFinance, config, User);
-            await bringForwardProcess.RunAsync();
+            var bringForwardProcess = new BringForwardEventProcess(repositories, config);
+            bringForwardProcess.Run();
 
             var endTime = DateTime.Now;
 

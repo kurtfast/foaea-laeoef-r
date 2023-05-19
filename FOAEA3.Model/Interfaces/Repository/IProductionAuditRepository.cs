@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Text;
 
-namespace FOAEA3.Model.Interfaces.Repository
+namespace FOAEA3.Model.Interfaces
 {
     public interface IProductionAuditRepository
     {
-        string CurrentSubmitter { get; set; }
-        string UserId { get; set; }
+        public string CurrentSubmitter { get; set; }
+        public string UserId { get; set; }
 
-        Task InsertAsync(string processName, string description, string audience, DateTime? completedDate = null);
-        Task InsertAsync(ProductionAuditData productionAuditData);
+        public void Insert(string processName, string description, string audience, DateTime? completedDate = null);
     }
 }

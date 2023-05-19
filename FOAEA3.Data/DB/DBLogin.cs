@@ -1,31 +1,29 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
+using FOAEA3.Model.Interfaces;
 using FOAEA3.Model;
-using FOAEA3.Model.Interfaces.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FOAEA3.Data.DB
 {
-    internal class DBLogin : DBbase, ILoginRepository
+    public class DBLogin : DBbase, ILoginRepository
     {
         private const int PREVIOUS_PASSWORDS_HISTORY = 5;
-        public DBLogin(IDBToolsAsync mainDB) : base(mainDB)
+        public DBLogin(IDBTools mainDB) : base(mainDB)
         {
 
         }
 
-        public async Task<bool> IsLoginExpiredAsync(string subjectName)
+        public bool IsLoginExpired(string subjectName)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"Username", subjectName}
             };
 
-            DateTime? expiryDate = (await MainDB.GetDataFromStoredProcAsync<SubjectData>("SecurityMembershipGetPasswordExpiry", parameters, FillSubjectDataFromReader))
-                                    .ElementAt(0).PasswordExpiryDate;
+            DateTime? expiryDate = MainDB.GetDataFromStoredProc<SubjectData>("SecurityMembershipGetPasswordExpiry", parameters, FillSubjectDataFromReader).ElementAt(0).PasswordExpiryDate;
             if (expiryDate.HasValue)
             {
                 if (expiryDate.Value.Date > DateTime.Now.Date)
@@ -43,14 +41,14 @@ namespace FOAEA3.Data.DB
             }
         }
 
-        public async Task<bool> CheckPreviousPasswordsAsync(int subjectId, string newPassword)
+        public bool CheckPreviousPasswords(int subjectId, string newPassword)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"subjectId", subjectId.ToString()}
             };
 
-            List<SubjectData> previousPasswords = await MainDB.GetDataFromStoredProcAsync<SubjectData>("SecurityMembershipGetPreviousPasswords", parameters, FillSubjectDataFromReader);
+            List<SubjectData> previousPasswords = MainDB.GetDataFromStoredProc<SubjectData>("SecurityMembershipGetPreviousPasswords", parameters, FillSubjectDataFromReader);
 
             int x = 1;
             foreach (SubjectData previousPassword in previousPasswords)
@@ -73,29 +71,31 @@ namespace FOAEA3.Data.DB
 
         }
 
-        public async Task<bool> GetAllowedAccessAsync(string username)
+        public void GetAllowedAccess(string username, ref bool IsAllowed)
         {
             var parameters = new Dictionary<string, object>
                 {
                     {"Username", username}
                 };
 
-            List<SubjectData> accessList = await MainDB.GetDataFromStoredProcAsync<SubjectData>("SecurityMembershipGetAllowedAccess", parameters, FillSubjectDataFromReader);
+            List<SubjectData> accessList = MainDB.GetDataFromStoredProc<SubjectData>("SecurityMembershipGetAllowedAccess", parameters, FillSubjectDataFromReader);
+
+
 
             if (accessList.Count > 0)
             {
-                return accessList.ElementAt(0).AllowedAccess;
+                IsAllowed = accessList.ElementAt(0).AllowedAccess;
             }
             else
             {
                 // This is when no record has been found in the Subject table 
                 // for the specified Username
-                return false;
+                IsAllowed = false;
             }
 
         }
 
-        public async Task SetPasswordAsync(string username, string password, int passwordFormat, string passwordSalt, int passwordExpireDays)
+        public void SetPassword(string username, string password, int passwordFormat, string passwordSalt, int passwordExpireDays)
         {
 
             var parameters = new Dictionary<string, object>
@@ -108,44 +108,44 @@ namespace FOAEA3.Data.DB
             };
 
 
-            _ = await MainDB.ExecProcAsync("SecurityMembershipSetPassword", parameters);
+            _ = MainDB.ExecProc("SecurityMembershipSetPassword", parameters);
 
         }
 
-        public async Task<bool> VerifyConfirmationCodeAsync(string confirmationCode)
+        public bool VerifyConfirmationCode(string confirmationCode)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"ConfirmationCode", confirmationCode }
             };
 
-            int result = await MainDB.GetDataFromStoredProcAsync<int>("PasswordResetVerifyConfirmationCode", parameters);
+            int result = MainDB.GetDataFromStoredProc<int>("PasswordResetVerifyConfirmationCode", parameters);
             return (result == 1);
         }
 
-        public async Task<bool> VerifyPasswordResetFlagSetAsync(string subjectName)
+        public bool VerifyPasswordResetFlagSet(string subjectName)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"SubjectName", subjectName }
             };
 
-            int result = await MainDB.GetDataFromStoredProcAsync<int>("PasswordResetVerifyPasswordResetFlagSet", parameters);
+            int result = MainDB.GetDataFromStoredProc<int>("PasswordResetVerifyPasswordResetFlagSet", parameters);
             return (result == 1);
         }
 
-        public async Task<bool> VerifyPasswordResetAsync(string subjectName)
+        public bool VerifyPasswordReset(string subjectName)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"SubjectName", subjectName }
             };
 
-            int result = await MainDB.GetDataFromStoredProcAsync<int>("PasswordResetVerifyPasswordReset", parameters);
+            int result = MainDB.GetDataFromStoredProc<int>("PasswordResetVerifyPasswordReset", parameters);
             return (result == 1);
         }
 
-        public async Task PostConfirmationCodeAsync(int subjectId, string confirmationCode)
+        public void PostConfirmationCode(int subjectId, string confirmationCode)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -153,10 +153,10 @@ namespace FOAEA3.Data.DB
                 {"SubjectID", subjectId.ToString() }
 
             };
-            _ = await MainDB.ExecProcAsync("PasswordResetPostConfirmationCode", parameters);
+            _ = MainDB.ExecProc("PasswordResetPostConfirmationCode", parameters);
         }
 
-        public async Task PostPasswordAsync(string confirmationCode, string password, string salt, string initial)
+        public void PostPassword(string confirmationCode, string password, string salt, string initial)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -165,57 +165,57 @@ namespace FOAEA3.Data.DB
                 {"PasswordSalt", salt },
                 {"initial", initial }
             };
-            _ = await MainDB.ExecProcAsync("PasswordResetPostPassword", parameters);
+            _ = MainDB.ExecProc("PasswordResetPostPassword", parameters);
         }
 
-        public async Task PostConfirmationReceivedAsync(string confirmationCode)
+        public void PostConfirmationReceived(string confirmationCode)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"ConfirmationCode", confirmationCode }
             };
-            _ = await MainDB.ExecProcAsync("PasswordResetPostConfirmationReceived", parameters);
+            _ = MainDB.ExecProc("PasswordResetPostConfirmationReceived", parameters);
         }
 
-        public async Task<string> GetEmailByConfirmationCodeAsync(string confirmationCode)
+        public string GetEmailByConfirmationCode(string confirmationCode)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"ConfirmationCode", confirmationCode }
             };
 
-            return await MainDB.GetDataFromStoredProcAsync<string>("PasswordResetGetEmailByConfirmationCode", parameters);
+            return MainDB.GetDataFromStoredProc<string>("PasswordResetGetEmailByConfirmationCode", parameters);
 
         }
 
-        public async Task ProcessResetAsync(string confirmationCode)
+        public void ProcessReset(string confirmationCode)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"ConfirmationCode", confirmationCode }
             };
-            _ = await MainDB.ExecProcAsync("PasswordResetProcessReset", parameters);
+            _ = MainDB.ExecProc("PasswordResetProcessReset", parameters);
         }
 
-        public async Task<bool> VerifyPasswordSentAsync(string subjectName)
+        public bool VerifyPasswordSent(string subjectName)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"SubjectName", subjectName }
             };
 
-            int result = await MainDB.GetDataFromStoredProcAsync<int>("PasswordResetVerifyPasswordSent", parameters);
+            int result = MainDB.GetDataFromStoredProc<int>("PasswordResetVerifyPasswordSent", parameters);
             return (result == 1);
         }
 
-        public async Task AcceptNewTermsOfReferernceAsync(string subjectName)
+        public void AcceptNewTermsOfReferernce(string subjectName)
         {
             var parameters = new Dictionary<string, object>
             {
                 {"SubjectName", subjectName }
             };
 
-            _ = await MainDB.ExecProcAsync("SubjuctUpdateTermOfRefFlag", parameters);
+            _ = MainDB.ExecProc("SubjuctUpdateTermOfRefFlag", parameters);
 
         }
 
@@ -249,6 +249,6 @@ namespace FOAEA3.Data.DB
             data.PKIExpiration = (DateTime?)(rdr["PKIExpiration"]);
             data.HasAcceptedNewTermsOfRef = (bool)(rdr["HasAcceptedNewTermsOfRef"]);
         }
-
+        
     }
 }

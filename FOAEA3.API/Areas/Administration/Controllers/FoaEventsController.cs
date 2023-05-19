@@ -1,27 +1,23 @@
-﻿using FOAEA3.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using FOAEA3.Data.Base;
 using FOAEA3.Model;
-using FOAEA3.Model.Constants;
-using FOAEA3.Model.Interfaces.Repository;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
-namespace FOAEA3.API.Areas.Administration.Controllers;
-
-[ApiController]
-[Route("api/v1/[controller]")]
-public class FoaEventsController : FoaeaControllerBase
+namespace FOAEA3.API.Areas.Administration.Controllers
 {
-    [HttpGet("Version")]
-    public ActionResult<string> GetVersion() => Ok("FoaEvents API Version 1.0");
-
-    [HttpGet("DB")]
-    [Authorize(Roles = Roles.Admin)]
-    public ActionResult<string> GetDatabase([FromServices] IRepositories repositories) => Ok(repositories.MainDB.ConnectionString);
-
-    [HttpGet]
-    public ActionResult<FoaEventDataDictionary> GetFoaeEvents()
+    [ApiController]
+    [Route("api/v1/[controller]")]
+    public class FoaEventsController : ControllerBase
     {
-        return Ok(ReferenceData.Instance().FoaEvents);
+        [HttpGet]
+        public ActionResult<FoaEventDataDictionary> GetFoaeEvents()
+        {
+            return Ok(ReferenceData.Instance().FoaEvents);
+        }
     }
 }

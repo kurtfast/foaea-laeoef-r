@@ -1,6 +1,5 @@
 ﻿using DBHelper;
 using FileBroker.Business.Helpers;
-using FileBroker.Business.Tests.InMemory;
 using FileBroker.Data.DB;
 using FileBroker.Model;
 using FOAEA3.Data.DB;
@@ -9,7 +8,6 @@ using FOAEA3.Resources.Helpers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace FileBroker.Business.Tests
@@ -17,15 +15,15 @@ namespace FileBroker.Business.Tests
     public class IncomingFederalTracingManagerTests
     {
         [Fact]
-        public async Task ExtractNETPTracingDataFromFlatFile_Test1()
+        public void ExtractNETPTracingDataFromFlatFile_Test1()
         {
             // Arrange
 
             var fileTable = new InMemoryFileTable();
-            var messageBrokerDB = new DBToolsAsync("Server=%FOAEA_DB_SERVER%;Database=FoaeaMessageBroker;Integrated Security=SSPI;Trust Server Certificate=true;"
+            var messageBrokerDB = new DBTools("Server=%FOAEA_DB_SERVER%;Database=FoaeaMessageBroker;Integrated Security=SSPI;Trust Server Certificate=true;"
                                             .ReplaceVariablesWithEnvironmentValues());
             var flatFileSpecs = new DBFlatFileSpecification(messageBrokerDB);
-            var processId = (await fileTable.GetFileTableDataForFileName("EI3STSIT")).PrcId;
+            var processId = fileTable.GetFileTableDataForFileName("EI3STSIT").PrcId;
             var fileLoader = new IncomingFederalTracingFileLoader(flatFileSpecs, processId);
 
             string fullPathFileName = @"TestDataFiles\EI3STSIT.000001";
@@ -41,7 +39,7 @@ namespace FileBroker.Business.Tests
             var netpTracingData = new FedTracingFileBase();
             netpTracingData.AddEmployerRecTypes("80", "81");
             var errors = new List<string>();
-            await fileLoader.FillTracingFileDataFromFlatFileAsync(netpTracingData, flatFile, errors);
+            fileLoader.FillTracingFileDataFromFlatFile(netpTracingData, flatFile, ref errors);
 
             // Assert
 
@@ -56,15 +54,15 @@ namespace FileBroker.Business.Tests
         }
 
         [Fact]
-        public async Task ExtractCRATracingDataFromFlatFile_Test1()
+        public void ExtractCRATracingDataFromFlatFile_Test1()
         {
             // Arrange
 
             var fileTable = new InMemoryFileTable();
-            var messageBrokerDB = new DBToolsAsync("Server=%FOAEA_DB_SERVER%;Database=FoaeaMessageBroker;Integrated Security=SSPI;Trust Server Certificate=true;"
+            var messageBrokerDB = new DBTools("Server=%FOAEA_DB_SERVER%;Database=FoaeaMessageBroker;Integrated Security=SSPI;Trust Server Certificate=true;"
                                             .ReplaceVariablesWithEnvironmentValues());
             var flatFileSpecs = new DBFlatFileSpecification(messageBrokerDB);
-            var processId = (await fileTable.GetFileTableDataForFileName("RC3STSIT")).PrcId;
+            var processId = fileTable.GetFileTableDataForFileName("RC3STSIT").PrcId;
             var fileLoader = new IncomingFederalTracingFileLoader(flatFileSpecs, processId);
 
             string fullPathFileName = @"TestDataFiles\RC3STSIT.001";
@@ -81,7 +79,7 @@ namespace FileBroker.Business.Tests
             craTracingData.AddEmployerRecTypes("04", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32",
                                                "33", "34", "35", "36");
             var errors = new List<string>();
-            await fileLoader.FillTracingFileDataFromFlatFileAsync(craTracingData, flatFile, errors);
+            fileLoader.FillTracingFileDataFromFlatFile(craTracingData, flatFile, ref errors);
 
             // Assert
 
@@ -95,15 +93,15 @@ namespace FileBroker.Business.Tests
         }
 
         [Fact]
-        public async Task ExtractEITracingDataFromFlatFile_Test1()
+        public void ExtractEITracingDataFromFlatFile_Test1()
         {
             // Arrange
 
             var fileTable = new InMemoryFileTable();
-            var messageBrokerDB = new DBToolsAsync("Server=%FOAEA_DB_SERVER%;Database=FoaeaMessageBroker;Integrated Security=SSPI;Trust Server Certificate=true;"
+            var messageBrokerDB = new DBTools("Server=%FOAEA_DB_SERVER%;Database=FoaeaMessageBroker;Integrated Security=SSPI;Trust Server Certificate=true;"
                                         .ReplaceVariablesWithEnvironmentValues());
             var flatFileSpecs = new DBFlatFileSpecification(messageBrokerDB);
-            var processId = (await fileTable.GetFileTableDataForFileName("HR3STSIT")).PrcId;
+            var processId = fileTable.GetFileTableDataForFileName("HR3STSIT").PrcId;
             var fileLoader = new IncomingFederalTracingFileLoader(flatFileSpecs, processId);
 
             string fullPathFileName = @"TestDataFiles\HR3STSIT.000001";
@@ -120,7 +118,7 @@ namespace FileBroker.Business.Tests
             eiTracingData.AddResidentialRecTypes("03");
             eiTracingData.AddEmployerRecTypes("04");
             var errors = new List<string>();
-            await fileLoader.FillTracingFileDataFromFlatFileAsync(eiTracingData, flatFile, errors);
+            fileLoader.FillTracingFileDataFromFlatFile(eiTracingData, flatFile, ref errors);
 
             // Assert
 
@@ -133,51 +131,51 @@ namespace FileBroker.Business.Tests
             Assert.Equal<int>(eiTracingData.TRCIN02.Count, eiTracingData.TRCIN99.ResponseCnt);
         }
 
-        //[Fact]
-        //public async Task CombineCRADataIntoTracingResponses_Test1()
-        //{
-        //    // Arrange
+        [Fact]
+        public void CombineCRADataIntoTracingResponses_Test1()
+        {
+            // Arrange
 
-        //    var fileTable = new InMemoryFileTable();
-        //    var messageBrokerDB = new DBToolsAsync("Server=%FOAEA_DB_SERVER%;Database=FoaeaMessageBroker;Integrated Security=SSPI;Trust Server Certificate=true;"
-        //                                .ReplaceVariablesWithEnvironmentValues());
-        //    var foaeaDB = new DBToolsAsync("Server=%FOAEA_DB_SERVER%;Database=FOAEA_DEV;Integrated Security=SSPI;Trust Server Certificate=true;"
-        //                                .ReplaceVariablesWithEnvironmentValues());
-        //    var flatFileSpecs = new DBFlatFileSpecification(messageBrokerDB);
-        //    var tracingDB = new DBTracing(foaeaDB);
+            var fileTable = new InMemoryFileTable();
+            var messageBrokerDB = new DBTools("Server=%FOAEA_DB_SERVER%;Database=FoaeaMessageBroker;Integrated Security=SSPI;Trust Server Certificate=true;"
+                                        .ReplaceVariablesWithEnvironmentValues());
+            var foaeaDB = new DBTools("Server=%FOAEA_DB_SERVER%;Database=FOAEA_DEV;Integrated Security=SSPI;Trust Server Certificate=true;"
+                                        .ReplaceVariablesWithEnvironmentValues());
+            var flatFileSpecs = new DBFlatFileSpecification(messageBrokerDB);
+            var tracingDB = new DBTracing(foaeaDB);
 
-        //    var processId = (await fileTable.GetFileTableDataForFileNameAsync("RC3STSIT")).PrcId;
-        //    var fileLoader = new IncomingFederalTracingFileLoader(flatFileSpecs, processId);
+            var processId = fileTable.GetFileTableDataForFileName("RC3STSIT").PrcId;
+            var fileLoader = new IncomingFederalTracingFileLoader(flatFileSpecs, processId);
 
-        //    var craTracingData = new FedTracingFileBase();
-        //    craTracingData.AddResidentialRecTypes("03", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15",
-        //                                          "16", "17", "18", "19", "20", "21");
-        //    craTracingData.AddEmployerRecTypes("04", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32",
-        //                                       "33", "34", "35", "36");
+            var craTracingData = new FedTracingFileBase();
+            craTracingData.AddResidentialRecTypes("03", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15",
+                                                  "16", "17", "18", "19", "20", "21");
+            craTracingData.AddEmployerRecTypes("04", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32",
+                                               "33", "34", "35", "36");
 
-        //    string fullPathFileName = @"TestDataFiles\RC3STSIT.001";
-        //    //string flatFileName = "RC3STSIT.001";
-        //    string flatFile = "";
+            string fullPathFileName = @"TestDataFiles\RC3STSIT.001";
+            //string flatFileName = "RC3STSIT.001";
+            string flatFile = "";
 
-        //    // Act
+            // Act
 
-        //    using (var streamReader = new StreamReader(fullPathFileName, Encoding.UTF8))
-        //        flatFile = streamReader.ReadToEnd();
+            using (var streamReader = new StreamReader(fullPathFileName, Encoding.UTF8))
+                flatFile = streamReader.ReadToEnd();
 
-        //    var errors = new List<string>();
-        //    await fileLoader.FillTracingFileDataFromFlatFileAsync(craTracingData, flatFile, errors);
+            var errors = new List<string>();
+            fileLoader.FillTracingFileDataFromFlatFile(craTracingData, flatFile, ref errors);
 
-        //    var cycles = await tracingDB.GetTraceCycleQuantityDataAsync("RC01", Path.GetExtension("RC3STSIT.356"));
+            var cycles = tracingDB.GetTraceCycleQuantityData("RC01", Path.GetExtension("RC3STSIT.356"));
 
-        //    var traceResponses = IncomingFederalTracingResponse.GenerateFromFileData(craTracingData, "RC01", cycles, ref errors);
+            var traceResponses = IncomingFederalTracingResponse.GenerateFromFileData(craTracingData, "RC01", cycles, ref errors);
 
-        //    SaveTraceResponsesToFile(traceResponses);
+            SaveTraceResponsesToFile(traceResponses);
 
-        //    // Assert
+            // Assert
 
-        //    Assert.Equal<int>(339, traceResponses.Count);
-        //    Assert.Equal<int>(craTracingData.TRCIN02.Count, craTracingData.TRCIN99.ResponseCnt);
-        //}
+            Assert.Equal<int>(339, traceResponses.Count);
+            Assert.Equal<int>(craTracingData.TRCIN02.Count, craTracingData.TRCIN99.ResponseCnt);
+        }
 
         private static void SaveTraceResponsesToFile(List<TraceResponseData> traceResponses)
         {

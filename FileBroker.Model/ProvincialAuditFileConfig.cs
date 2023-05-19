@@ -6,6 +6,8 @@ namespace FileBroker.Model
     {
         private string auditRootPath;
         private string auditRecipients;
+        private string[] frenchAuditProvinceCodes;
+        private string mailServer;
 
         public string AuditRootPath
         {
@@ -16,6 +18,17 @@ namespace FileBroker.Model
         {
             get => auditRecipients;
             set => auditRecipients = value.ReplaceVariablesWithEnvironmentValues();
-        }       
+        }
+        public string[] FrenchAuditProvinceCodes
+        {
+            get => frenchAuditProvinceCodes;
+            set => frenchAuditProvinceCodes = value;
+        }
+
+        public string MailServer
+        {
+            get => mailServer;
+            set => mailServer = value.ReplaceVariablesWithEnvironmentValues();
+        }
     }
 }

@@ -1,21 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
-namespace FOAEA3.Web.Pages;
-
-public class IndexModel : PageModel
+namespace FOAEA3.Web.Pages
 {
-    private readonly ILogger<IndexModel> _logger;
-
-
-    public IndexModel(ILogger<IndexModel> logger)
+    public class IndexModel : PageModel
     {
-        _logger = logger;
+        private readonly ILogger<IndexModel> _logger;
+
+
+        public IndexModel(ILogger<IndexModel> logger)
+        {
+            _logger = logger;
+        }
+
+        public void OnGet()
+        {
+        }
+
     }
-
-    public void OnGet()
-    {
-
-    }
-
 }

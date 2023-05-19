@@ -1,8 +1,7 @@
 ﻿using FOAEA3.Model;
 using FOAEA3.Model.Enums;
-using FOAEA3.Model.Interfaces.Repository;
+using FOAEA3.Model.Interfaces;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace TestData.TestDB
 {
@@ -22,7 +21,7 @@ namespace TestData.TestDB
 
         public MessageDataList Messages { get; set; }
 
-        public Task<FoaEventDataDictionary> GetAllFoaMessagesAsync()
+        public FoaEventDataDictionary GetAllFoaMessages()
         {
             var result = new FoaEventDataDictionary();
 
@@ -38,7 +37,7 @@ namespace TestData.TestDB
                         Severity = eventData.Severity,
                     };
 
-                    result.FoaEvents.TryAdd(eventData.Error.ToString(), newEventData);
+                    result.FoaEvents.Add(eventData.Error.ToString(), newEventData);
                 }
 
                 if (eventData.MsgLangId == 1033)
@@ -47,8 +46,7 @@ namespace TestData.TestDB
                     result[eventCode].Description_f = eventData.Description;
             }
 
-            return Task.FromResult(result);
-
+            return result;
         }
 
         private readonly List<FoaMessageData> FoaMessages = new()
