@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace FileBroker.Business.Helpers;
+﻿namespace FileBroker.Business.Helpers;
 
 public class IncomingFederalTracingResponse
 {
