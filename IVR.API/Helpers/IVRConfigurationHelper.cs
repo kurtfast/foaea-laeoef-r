@@ -1,15 +1,11 @@
-﻿using FOAEA3.IVR.Model;
-using FOAEA3.IVR.Interfaces;
-using FOAEA3.IVR.Helpers;
-using Microsoft.Extensions.Configuration;
+﻿
 
 namespace FOAEA3.IVR.Helpers
 {
-    public class IVRConfigurationHelper : IIVRConfigurationHelper
+    public class IVRConfigurationHelper
     {
         public string FoaeaConnection { get; }
-        public RecipientsConfig Recipients { get; }
-        //public string FoaeaIVRConnection { get; }
+        
         public List<string> ProductionServers { get; }
 
         public IVRConfigurationHelper(string[] args = null)
@@ -33,7 +29,7 @@ namespace FOAEA3.IVR.Helpers
             //test only
             //FoaeaIVRConnection = configuration.GetConnectionString("FOAEAIVRMain").ReplaceVariablesWithEnvironmentValues();
 
-            Recipients = configuration.GetSection("RecipientsConfig").Get<RecipientsConfig>();
+            //Recipients = configuration.GetSection("RecipientsConfig").Get<RecipientsConfig>();
    
         }
 

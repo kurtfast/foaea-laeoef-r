@@ -1,25 +1,6 @@
-using DBHelper;
-//using FOAEA3.Common.Filters;
-//using FOAEA3.Common.Helpers;
-using FOAEA3.Data.Base;
-using FOAEA3.Data.DB;
 using FOAEA3.IVR.Helpers;
-using FOAEA3.Model.Constants;
-using FOAEA3.IVR.Interfaces;
-using FOAEA3.IVR.Interfaces.Repository;
-using FOAEA3.IVR.Helpers;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Text;
-using System.Xml.Linq;
 
 namespace FOAEA3.IVR
 {
@@ -105,12 +86,12 @@ namespace FOAEA3.IVR
 
         public static void AddDBServices(IServiceCollection services, string connectionString)
         {
-            var mainDB = new DBToolsAsync(connectionString);
+            //var mainDB = new DBToolsAsync(connectionString);
             
-            services.AddScoped<IIVRRepository>(m => ActivatorUtilities.CreateInstance<DBIVR>(m, mainDB));
+            //services.AddScoped<IIVRRepository>(m => ActivatorUtilities.CreateInstance<DBIVR>(m, mainDB));
 
             //Log.Information("Using MainDB = {MainDB}", mainDB.ConnectionString);
-            ColourConsole.WriteEmbeddedColorLine($"Using Connection: [yellow]{mainDB.ConnectionString}[/yellow]");
+            ColourConsole.WriteEmbeddedColorLine($"Using Connection: [yellow]{connectionString}[/yellow]");
         }
 
         public static async Task SetupAndRun(string[] args, Action<IServiceCollection> SetupDataOverride = null)

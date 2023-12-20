@@ -1,19 +1,25 @@
-﻿using DBHelper;
-using FOAEA3.Data.Base;
-using FOAEA3.IVR.Interfaces.Repository;
+﻿//using DBHelper;
+//using FOAEA3.Data.Base;
+//using FOAEA3.IVR.Interfaces.Repository;
 using FOAEA3.IVR.Data;
+using FOAEA3.IVR.Helpers;
+using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FOAEA3.Data.DB
+namespace FOAEA3.IVR.Data.DB
 {
-    internal class DBIVR : DBbase, IIVRRepository
+    internal class DBIVR
     {
+        private string FoeeaConnection { get; set; }
 
-        public DBIVR(IDBToolsAsync mainDB) : base(mainDB)
+
+        public DBIVR()
         {
-
+            var configHelper = new IVRConfigurationHelper();
+            FoeeaConnection = configHelper.FoaeaConnection;
+            
         }
 
         public async Task<CheckSinReturnData> CheckSinCount(CheckSinGetData data)
@@ -23,13 +29,13 @@ namespace FOAEA3.Data.DB
                 { "Debtor_SIN",  data.DebtorSin}
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<CheckSinReturnData>("fpIVR_Check_Sin",
+            var result = await GetDataFromStoredProcAsync<CheckSinReturnData>("fpIVR_Check_Sin",
                                                                         parameters,
                                                                         FillDataFromReaderGetSinCount);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderGetSinCount(IDBHelperReader rdr, CheckSinReturnData data)
+        private void FillDataFromReaderGetSinCount(SqlDataReader rdr, CheckSinReturnData data)
         {
             data.SinCount = (int)(rdr["SinCount"]);
         }
@@ -41,13 +47,13 @@ namespace FOAEA3.Data.DB
                 { "Creditor_Id",  data.CreditorId}
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<CheckCreditorIdReturnData>("fpIVR_Check_Creditor_Id",
+            var result = await GetDataFromStoredProcAsync<CheckCreditorIdReturnData>("fpIVR_Check_Creditor_Id",
                                                                         parameters,
                                                                         FillDataFromReaderCheckCreditorId);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderCheckCreditorId(IDBHelperReader rdr, CheckCreditorIdReturnData data)
+        private void FillDataFromReaderCheckCreditorId(SqlDataReader rdr, CheckCreditorIdReturnData data)
         {
             data.CreditorCount = (int)(rdr["CREDITOR_COUNT"]);
         }
@@ -60,13 +66,13 @@ namespace FOAEA3.Data.DB
                 { "Ctrl_Cd",  data.ControlCode}
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<CheckControlCodeReturnData>("fpIVR_Check_Ctrl_Cd",
+            var result = await GetDataFromStoredProcAsync<CheckControlCodeReturnData>("fpIVR_Check_Ctrl_Cd",
                                                                         parameters,
                                                                         FillDataFromReaderCheckControlCode);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderCheckControlCode(IDBHelperReader rdr, CheckControlCodeReturnData data)
+        private void FillDataFromReaderCheckControlCode(SqlDataReader rdr, CheckControlCodeReturnData data)
         {
             data.ControlCodeCount = (int)(rdr["CTRL_CDCOUNT"]);
         }
@@ -79,13 +85,13 @@ namespace FOAEA3.Data.DB
                 { "Debtor_Id",  data.DebtorId}
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<CheckDebtorIdReturnData>("fpIVR_Check_Debtor_Id",
+            var result = await GetDataFromStoredProcAsync<CheckDebtorIdReturnData>("fpIVR_Check_Debtor_Id",
                                                                         parameters,
                                                                         FillDataFromReaderCheckDebtorId);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderCheckDebtorId(IDBHelperReader rdr, CheckDebtorIdReturnData data)
+        private void FillDataFromReaderCheckDebtorId(SqlDataReader rdr, CheckDebtorIdReturnData data)
         {
             data.DebtorIdCount = (int)(rdr["DEBTOR_IDCOUNT"]);
         }
@@ -99,13 +105,13 @@ namespace FOAEA3.Data.DB
                 { "Letter", data.Letter }
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<CheckDebtorLetterReturnData>("fpIVR_Check_Debtor_Letter",
+            var result = await GetDataFromStoredProcAsync<CheckDebtorLetterReturnData>("fpIVR_Check_Debtor_Letter",
                                                                         parameters,
                                                                         FillDataFromReaderCheckDebtorLetter);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderCheckDebtorLetter(IDBHelperReader rdr, CheckDebtorLetterReturnData data)
+        private void FillDataFromReaderCheckDebtorLetter(SqlDataReader rdr, CheckDebtorLetterReturnData data)
         {
             data.LetterCount = (int)(rdr["LETTERCOUNT"]);
         }
@@ -120,13 +126,13 @@ namespace FOAEA3.Data.DB
                 { "appl_enfsrv_cd", data.EnforcementCode }
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<GetAgencyReturnData>("fpIVR_Get_Agency",
+            var result = await GetDataFromStoredProcAsync<GetAgencyReturnData>("fpIVR_Get_Agency",
                                                                         parameters,
                                                                         FillDataFromReaderGetAgency);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderGetAgency(IDBHelperReader rdr, GetAgencyReturnData data)
+        private void FillDataFromReaderGetAgency(SqlDataReader rdr, GetAgencyReturnData data)
         {
             data.EnforcementCode = rdr["EnfSrv_Cd"] as string;
             data.EnfOffAbbrCd = rdr["EnfOff_AbbrCd"] as string;
@@ -150,13 +156,13 @@ namespace FOAEA3.Data.DB
                 { "debtorNrSfx", data.DebtorNrSfx }
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<GetAgencyDebReturnData>("fpIVR_Get_Agency_Deb",
+            var result = await GetDataFromStoredProcAsync<GetAgencyDebReturnData>("fpIVR_Get_Agency_Deb",
                                                                         parameters,
                                                                         FillDataFromReaderGetAgencyDeb);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderGetAgencyDeb(IDBHelperReader rdr, GetAgencyDebReturnData data)
+        private void FillDataFromReaderGetAgencyDeb(SqlDataReader rdr, GetAgencyDebReturnData data)
         {
             data.EnforcementCode = rdr["Enforcement_Cd"] as string;
         }
@@ -170,13 +176,13 @@ namespace FOAEA3.Data.DB
                 { "debtorNrSfx", data.DebtorNrSfx }
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<GetApplControlCodeReturnData>("fpIVR_Get_Appl_Ctrlcd",
+            var result = await GetDataFromStoredProcAsync<GetApplControlCodeReturnData>("fpIVR_Get_Appl_Ctrlcd",
                                                                         parameters,
                                                                         FillDataFromReaderGetApplControlCode);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderGetApplControlCode(IDBHelperReader rdr, GetApplControlCodeReturnData data)
+        private void FillDataFromReaderGetApplControlCode(SqlDataReader rdr, GetApplControlCodeReturnData data)
         {
             data.ControlCode = rdr["Appl_Ctrlcd"] as string;
         }
@@ -190,13 +196,13 @@ namespace FOAEA3.Data.DB
                 { "debtorNrSfx", data.DebtorNrSfx }
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<GetApplEnforcementCodeReturnData>("fpIVR_Get_Appl_Enfsrv_Cd",
+            var result = await GetDataFromStoredProcAsync<GetApplEnforcementCodeReturnData>("fpIVR_Get_Appl_Enfsrv_Cd",
                                                                         parameters,
                                                                         FillDataFromReaderGetApplEnforcementCode);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderGetApplEnforcementCode(IDBHelperReader rdr, GetApplEnforcementCodeReturnData data)
+        private void FillDataFromReaderGetApplEnforcementCode(SqlDataReader rdr, GetApplEnforcementCodeReturnData data)
         {
             data.EnforcementCode = rdr["Appl_Enfsrv_Cd"] as string;
         }
@@ -209,13 +215,13 @@ namespace FOAEA3.Data.DB
                 { "appl_ctrlcd", data.ControlCode}
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<GetHoldbackConditionReturnData>("fpIVR_Get_HldbCnd",
+            var result = await GetDataFromStoredProcAsync<GetHoldbackConditionReturnData>("fpIVR_Get_HldbCnd",
                                                                         parameters,
                                                                         FillDataFromReaderGetHoldbackCondition);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderGetHoldbackCondition(IDBHelperReader rdr, GetHoldbackConditionReturnData data)
+        private void FillDataFromReaderGetHoldbackCondition(SqlDataReader rdr, GetHoldbackConditionReturnData data)
         {
             data.EnfSrcCd = rdr["EnfSrc_Cd"] as string;
             data.HldbCtgCd = rdr["HldbCtg_Cd"] as string;
@@ -231,13 +237,13 @@ namespace FOAEA3.Data.DB
                 { "Ctrl_cd", data.ControlCode}
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<GetL01AgencyReturnData>("fpIVR_Get_L01Agency",
+            var result = await GetDataFromStoredProcAsync<GetL01AgencyReturnData>("fpIVR_Get_L01Agency",
                                                                         parameters,
                                                                         FillDataFromReaderGetL01Agency);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderGetL01Agency(IDBHelperReader rdr, GetL01AgencyReturnData data)
+        private void FillDataFromReaderGetL01Agency(SqlDataReader rdr, GetL01AgencyReturnData data)
         {
             data.ActvStCd = rdr["ActvSt_Cd"] as string;
             data.ApplLglDte = rdr["Appl_Lgl_Dte"] as string;
@@ -253,13 +259,13 @@ namespace FOAEA3.Data.DB
                 { "appl_ctrlcd", data.ControlCode}
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<GetPaymentsReturnData>("fpIVR_Get_Payments",
+            var result = await GetDataFromStoredProcAsync<GetPaymentsReturnData>("fpIVR_Get_Payments",
                                                                         parameters,
                                                                         FillDataFromReaderGetPayments);
             return result;
         }
 
-        private void FillDataFromReaderGetPayments(IDBHelperReader rdr, GetPaymentsReturnData data)
+        private void FillDataFromReaderGetPayments(SqlDataReader rdr, GetPaymentsReturnData data)
         {
             data.SrcDept = rdr["SrcDept"] as string;
             data.FaAmount = rdr["FA_Amount"] as string;
@@ -284,13 +290,13 @@ namespace FOAEA3.Data.DB
                 { "debtorNrSfx", data.DebtorNrSfx }
             };
 
-            var result = await MainDB.GetDataFromStoredProcAsync<GetSummonsReturnData>("fpIVR_Get_Summons",
+            var result = await GetDataFromStoredProcAsync<GetSummonsReturnData>("fpIVR_Get_Summons",
                                                                         parameters,
                                                                         FillDataFromReaderGetSummons);
             return result.FirstOrDefault();
         }
 
-        private void FillDataFromReaderGetSummons(IDBHelperReader rdr, GetSummonsReturnData data)
+        private void FillDataFromReaderGetSummons(SqlDataReader rdr, GetSummonsReturnData data)
         {
             data.EnforcementCode = rdr["Appl_EnfSrv_Cd"] as string;
             data.ControlCode = rdr["Appl_ctrlcd"] as string;
@@ -320,6 +326,41 @@ namespace FOAEA3.Data.DB
             data.LastCalc = rdr["LastCalc"] as string;
             data.HldbCtgCd = rdr["HldbCtg_Cd"] as string;
             data.HldbDefaultValue = rdr["Hldb_DefaultValue"] as string;
+        }
+        private async Task<List<Tdata>> GetDataFromStoredProcAsync<Tdata>(string procName, Dictionary<string, object> parameters, Action<SqlDataReader, Tdata> fillDataFromReader)
+        {
+            List<Tdata> result = new List<Tdata>();
+
+            //ConnectionStringSettings connection = FOAEAMainConnectionSetting();
+
+            using (SqlConnection con = new SqlConnection(FoeeaConnection))
+            {
+                SqlCommand cmd = new SqlCommand(procName, con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.CommandTimeout = 240;
+                if (parameters != null)
+                {
+                    foreach (var item in parameters)
+                    {
+                        cmd.Parameters.AddWithValue("@" + item.Key, item.Value);
+                    }
+                }
+
+                await con.OpenAsync();
+                SqlDataReader rdr = await cmd.ExecuteReaderAsync();
+                while (await rdr.ReadAsync())
+                {
+
+                    Tdata data = (Tdata)Activator.CreateInstance(typeof(Tdata));
+                    fillDataFromReader(rdr, data);
+
+                    result.Add(data);
+
+                }
+                await con.CloseAsync(); // Close and Dispose do the same thing -- using() will call Dispose so we should not call Close()
+            }
+
+            return result;
         }
 
     }

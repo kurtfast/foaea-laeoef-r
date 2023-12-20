@@ -1,11 +1,7 @@
 ﻿using FOAEA3.IVR.Business;
-using FOAEA3.IVR.Helpers;
-using FOAEA3.Model.Constants;
-using FOAEA3.IVR.Interfaces.Repository;
 using FOAEA3.IVR.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using FOAEA3.IVR.Model;
 
 namespace IVR.API.Controllers
 {
@@ -13,13 +9,11 @@ namespace IVR.API.Controllers
     [ApiController]
     public class IVRController : ControllerBase
     {
-        private readonly RecipientsConfig config;
+        //private readonly string connection;
 
         public IVRController()
         {
 
-            var configHelper = new IVRConfigurationHelper();
-            config = configHelper.Recipients;
         }
 
         [AllowAnonymous]
@@ -34,10 +28,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Check_Creditor_Id")]
         [AllowAnonymous]
         public async Task<ActionResult<CheckCreditorIdReturnData>> IVRCheckCreditorId(
-                                               [FromBody] CheckCreditorIdGetData checkCreditorIdGetData,
-                                               [FromServices] IIVRRepository ivrDB)
+                                               [FromBody] CheckCreditorIdGetData checkCreditorIdGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.CheckCreditorId(checkCreditorIdGetData);
 
@@ -50,10 +43,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Check_Ctrl_Cd")]
         [AllowAnonymous]
         public async Task<ActionResult<CheckControlCodeReturnData>> IVRCheckControlCode(
-                                               [FromBody] CheckControlCodeGetData checkControlCodeGetData,
-                                               [FromServices] IIVRRepository ivrDB)
+                                               [FromBody] CheckControlCodeGetData checkControlCodeGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.CheckControlCode(checkControlCodeGetData);
 
@@ -66,10 +58,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Check_Debtor_Id")]
         [AllowAnonymous]
         public async Task<ActionResult<CheckDebtorIdReturnData>> IVRCheckDebtorID(
-                                               [FromBody] CheckDebtorIdGetData checkDebtorIdGetData,
-                                               [FromServices] IIVRRepository ivrDB)
+                                               [FromBody] CheckDebtorIdGetData checkDebtorIdGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.CheckDebtorId(checkDebtorIdGetData);
 
@@ -82,10 +73,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Check_Debtor_Letter")]
         [AllowAnonymous]
         public async Task<ActionResult<CheckDebtorIdReturnData>> IVRCheckDebtorLetter(
-                                               [FromBody] CheckDebtorLetterGetData checkDebtorLetterGetData,
-                                               [FromServices] IIVRRepository ivrDB)
+                                               [FromBody] CheckDebtorLetterGetData checkDebtorLetterGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.CheckDebtorLetter(checkDebtorLetterGetData);
 
@@ -98,10 +88,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Check_Sin")]
         [AllowAnonymous]
         public async Task<ActionResult<CheckSinReturnData>> IVRCheckSin(
-                                                [FromBody] CheckSinGetData sinCountGetData,
-                                                [FromServices] IIVRRepository ivrDB)
+                                                [FromBody] CheckSinGetData sinCountGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.GetSinCount(sinCountGetData);
 
@@ -114,10 +103,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Get_Agency")]
         [AllowAnonymous]
         public async Task<ActionResult<CheckSinReturnData>> IVRGetAgency(
-                                                [FromBody] GetAgencyGetData getAgencyGetData,
-                                                [FromServices] IIVRRepository ivrDB)
+                                                [FromBody] GetAgencyGetData getAgencyGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.GetAgency(getAgencyGetData);
 
@@ -130,10 +118,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Get_Agency_Deb")]
         [AllowAnonymous]
         public async Task<ActionResult<CheckSinReturnData>> IVRGetAgencyDeb(
-                                                [FromBody] GetAgencyDebGetData getAgencyDebGetData,
-                                                [FromServices] IIVRRepository ivrDB)
+                                                [FromBody] GetAgencyDebGetData getAgencyDebGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.GetAgencyDeb(getAgencyDebGetData);
 
@@ -146,10 +133,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Get_Appl_Ctrlcd")]
         [AllowAnonymous]
         public async Task<ActionResult<GetApplControlCodeReturnData>> IVRGetApplControlCode(
-                                                [FromBody] GetApplControlCodeGetData getApplControlCodeGetData,
-                                                [FromServices] IIVRRepository ivrDB)
+                                                [FromBody] GetApplControlCodeGetData getApplControlCodeGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.GetApplControlCode(getApplControlCodeGetData);
 
@@ -162,10 +148,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Get_Appl_Enfsrv_Cd")]
         [AllowAnonymous]
         public async Task<ActionResult<GetApplEnforcementCodeReturnData>> IVRGetApplEnforcementCode(
-                                                [FromBody] GetApplEnforcementCodeGetData getApplEnforcementCodeGetData,
-                                                [FromServices] IIVRRepository ivrDB)
+                                                [FromBody] GetApplEnforcementCodeGetData getApplEnforcementCodeGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.GetApplEnforcementCode(getApplEnforcementCodeGetData);
 
@@ -178,10 +163,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Get_HldbCnd")]
         [AllowAnonymous]
         public async Task<ActionResult<GetHoldbackConditionReturnData>> IVRGetHoldbackCondition(
-                                        [FromBody] GetHoldbackConditionGetData getHoldbackConditionGetData,
-                                        [FromServices] IIVRRepository ivrDB)
+                                        [FromBody] GetHoldbackConditionGetData getHoldbackConditionGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.GetHoldbackCondition(getHoldbackConditionGetData);
 
@@ -194,10 +178,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Get_L01Agency")]
         [AllowAnonymous]
         public async Task<ActionResult<GetHoldbackConditionReturnData>> IVRGetL01Agency(
-                                        [FromBody] GetL01AgencyGetData getL01AgencyGetData,
-                                        [FromServices] IIVRRepository ivrDB)
+                                        [FromBody] GetL01AgencyGetData getL01AgencyGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.GetL01Agency(getL01AgencyGetData);
 
@@ -210,10 +193,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Get_Payments")]
         [AllowAnonymous]
         public async Task<ActionResult<GetHoldbackConditionReturnData>> IVRGetPayments(
-                                        [FromBody] GetPaymentsGetData getPaymentsGetData,
-                                        [FromServices] IIVRRepository ivrDB)
+                                        [FromBody] GetPaymentsGetData getPaymentsGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.GetPayments(getPaymentsGetData);
 
@@ -226,10 +208,9 @@ namespace IVR.API.Controllers
         [HttpGet("fpIVR_Get_Summons")]
         [AllowAnonymous]
         public async Task<ActionResult<GetHoldbackConditionReturnData>> IVRGetSummons(
-                                        [FromBody] GetSummonsGetData getSummonsGetData,
-                                        [FromServices] IIVRRepository ivrDB)
+                                        [FromBody] GetSummonsGetData getSummonsGetData)
         {
-            var manager = new IVRManager(ivrDB);
+            var manager = new IVRManager();
 
             var result = await manager.GetSummons(getSummonsGetData);
 
