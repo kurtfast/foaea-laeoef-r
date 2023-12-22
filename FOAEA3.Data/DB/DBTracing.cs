@@ -178,9 +178,9 @@ namespace FOAEA3.Data.DB
                 { "chrEnfSrv_Cd", enfServiceCode }
             };
 
-            return await MainDB.GetRecordsFromStoredProcAsync<TracingOutgoingFederalData>("MessageBrokerGetTRCOUTOutboundData",
+            var data = await MainDB.GetRecordsFromStoredProcAsync<TracingOutgoingFederalData>("MessageBrokerGetTRCOUTOutboundData",
                                                                                parameters, FillTracingOutgoingFederalRecord);
-
+            return data;
         }
 
         private void FillTracingOutgoingFederalRecord(IDBHelperReader rdr, out TracingOutgoingFederalData data)
