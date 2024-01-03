@@ -6,6 +6,6 @@
   "emailRecipients": "FOAEA_AEOEF@justice.gc.ca",
   "FTPbackupRoot": "\\\\%FOAEA_WEB_SERVER%\\FOAEAftpbackup",
   "FTProot": "\\\\%FOAEA_WEB_SERVER%\\ftpin",
-  "LogConsoleOutputToFile": true,
+  "LogConsoleOutputToFile": false,
   "opsRecipients": "FLAS-IT-SO@justice.gc.ca"
 }
