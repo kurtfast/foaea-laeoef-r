@@ -157,6 +157,13 @@ public class IncomingFederalTracingResponse
 
         foreach (var item in data)
         {
+            string addressType = item.RecType switch
+            {
+                80 => "ROH",
+                81 => "AERS",
+                _ => "E"
+            };
+
             var newResponse04 = new TraceResponseData
             {
                 Appl_EnfSrv_Cd = item.dat_Appl_EnfSrvCd,
@@ -174,7 +181,7 @@ public class IncomingFederalTracingResponse
                 TrcRsp_Addr_CtryCd = item.dat_TrcRsp_Addr_CtryCd.Trim() == "CA" ? string.Empty : item.dat_TrcRsp_Addr_CtryCd,
                 TrcRsp_Addr_PCd = item.dat_TrcRsp_Addr_PCd,
                 TrcRsp_Addr_LstUpdte = item.dat_TrcRsp_Addr_LstUpdte,
-                AddrTyp_Cd = "E",
+                AddrTyp_Cd = addressType,
                 Prcs_RecType = item.RecType,
                 ActvSt_Cd = "C"
             };
