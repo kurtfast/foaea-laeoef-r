@@ -15,7 +15,7 @@ public static class OutgoingFileCreatorMEP
 {
     public static async Task Run(string[] args = null)
     {
-        args ??= Array.Empty<string>();
+        args ??= [];
 
         ColourConsole.WriteEmbeddedColorLine("Starting MEP Outgoing File Creator");
 

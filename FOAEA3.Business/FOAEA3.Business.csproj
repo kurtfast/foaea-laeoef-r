@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
 		<Nullable>warnings</Nullable>
@@ -65,7 +65,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="MediatR" Version="12.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Primitives" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Primitives" Version="8.0.0" />
 	</ItemGroup>
 
 </Project>

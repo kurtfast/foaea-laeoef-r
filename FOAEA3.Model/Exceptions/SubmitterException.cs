@@ -18,8 +18,5 @@ namespace FOAEA3.Model.Exceptions
         {
         }
 
-        protected SubmitterException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 }

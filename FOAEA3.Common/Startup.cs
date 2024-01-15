@@ -32,7 +32,7 @@ namespace FOAEA3.Common
 
         public static void ConfigureAPIServices(IServiceCollection services, IFoaeaConfigurationHelper configuration)
         {
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllers(options =>
                         {
@@ -65,30 +65,23 @@ namespace FOAEA3.Common
                             };
                         });
 
-            services.AddAuthorization(options =>
-                        {
-                            options.AddPolicy(Policies.AdminOnlyAccess,
-                                        policy => policy.RequireClaim(ClaimTypes.Role,
-                                                                        Roles.Admin));
-
-                            options.AddPolicy(Policies.ApplicationReadAccess,
-                                        policy => policy.RequireClaim(ClaimTypes.Role,
+            services.AddAuthorizationBuilder()
+                .AddPolicy(Policies.AdminOnlyAccess, policy => policy.RequireClaim(ClaimTypes.Role,
+                                                                        Roles.Admin))
+                .AddPolicy(Policies.ApplicationReadAccess, policy => policy.RequireClaim(ClaimTypes.Role,
                                                                         Roles.Admin,
                                                                         Roles.FlasUser,
                                                                         Roles.EnforcementOffice,
                                                                         Roles.EnforcementOfficeReadOnly,
                                                                         Roles.EnforcementService,
                                                                         Roles.EnforcementServiceReadOnly,
-                                                                        Roles.CourtUser));
-
-                            options.AddPolicy(Policies.ApplicationModifyAccess,
-                                        policy => policy.RequireClaim(ClaimTypes.Role,
+                                                                        Roles.CourtUser))
+                .AddPolicy(Policies.ApplicationModifyAccess, policy => policy.RequireClaim(ClaimTypes.Role,
                                                                         Roles.Admin,
                                                                         Roles.FlasUser,
                                                                         Roles.EnforcementOffice,
                                                                         Roles.EnforcementService,
                                                                         Roles.CourtUser));
-                        });
         }
 
         public static void ConfigureAPI(WebApplication app, IWebHostEnvironment env, IFoaeaConfigurationHelper configuration, string apiName)
@@ -114,7 +107,7 @@ namespace FOAEA3.Common
 
                 IdentityModelEventSource.ShowPII = true;
             }
-            else if (configuration.ProductionServers.Any(prodServer => prodServer.ToLower() == currentServer.ToLower()))
+            else if (configuration.ProductionServers.Any(prodServer => prodServer.Equals(currentServer, StringComparison.CurrentCultureIgnoreCase)))
             {
                 app.UseExceptionHandler(appBuilder =>
                 {
@@ -142,11 +135,11 @@ namespace FOAEA3.Common
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-
+            app.UseRouting()
+               .UseEndpoints(r =>
+               {
+                   r.MapDefaultControllerRoute();
+               });
         }
 
         public static void AddDBServices(IServiceCollection services, string connectionString)

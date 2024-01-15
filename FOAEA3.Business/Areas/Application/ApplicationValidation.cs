@@ -1,5 +1,4 @@
 ﻿using DBHelper;
-using FOAEA3.Common.Helpers;
 using FOAEA3.Common.Models;
 using FOAEA3.Data.Base;
 using FOAEA3.Model;
@@ -18,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace FOAEA3.Business.Areas.Application
 {
-    internal class ApplicationValidation
+    internal partial class ApplicationValidation
     {
         protected IRepositories DB { get; }
         private ApplicationData Application { get; }
@@ -86,7 +85,7 @@ namespace FOAEA3.Business.Areas.Application
 
                 if (ctrlCd?.Length > 0)
                 {
-                    if ((!IsSystemGeneratedControlCode) && ("defghijksvDEFGHIJKSV".Contains(ctrlCd.Substring(0, 1))))
+                    if ((!IsSystemGeneratedControlCode) && ("defghijksvDEFGHIJKSV".Contains(ctrlCd[..1])))
                     {
                         isValid = false;
                         errorMessage = Resources.ErrorResource.INVALID_CONTROL_CODE;
@@ -149,7 +148,7 @@ namespace FOAEA3.Business.Areas.Application
             {
                 isValid = true;
 
-                if (debtorSurname.Trim().ToUpper() == "XXXX")
+                if (debtorSurname.Trim().Equals("XXXX", StringComparison.CurrentCultureIgnoreCase))
                 {
                     isValid = false;
                     errorMessage = Resources.ErrorResource.DEBTOR_SURNAME_CANNOT_BE_XXXX;
@@ -160,13 +159,13 @@ namespace FOAEA3.Business.Areas.Application
                     isValid = false;
                     errorMessage = Resources.ErrorResource.DEBTOR_SURNAME_LENGTH_3;
                 }
-                else if (debtorSurname.IndexOf(" ", 0, 3) != -1)
+                else if (debtorSurname.IndexOf(' ', 0, 3) != -1)
                 {
                     isValid = false;
                     errorMessage = Resources.ErrorResource.DEBTOR_SURNAME_CANNOT_CONTAIN_SPACE;
                 }
 
-                if (!Regex.IsMatch(debtorSurname, @"^[a-zA-Z\-'. ]*$")) // debtor surname must be alpha but can contain "-" and "" 
+                if (!DebtorSurnameRegex().IsMatch(debtorSurname)) // debtor surname must be alpha but can contain "-" and "" 
                 {
                     isValid = false;
                     errorMessage = Resources.ErrorResource.INVALID_DEBTOR_SURNAME;
@@ -195,7 +194,7 @@ namespace FOAEA3.Business.Areas.Application
             isSuccess = IsValidMandatory(isSuccess, Application.Appl_Dbtr_Brth_Dte, Resources.ErrorResource.MISSING_DEBTOR_DOB);
 
             if ((!string.IsNullOrEmpty(Application.Medium_Cd)) &&
-                (Application.Medium_Cd.ToUpper() == "FTP") &&
+                (Application.Medium_Cd.Equals("FTP", StringComparison.CurrentCultureIgnoreCase)) &&
                 (Application.AppCtgy_Cd != "L03"))
                 isSuccess = IsValidMandatory(isSuccess, Application.Appl_Group_Batch_Cd, Resources.ErrorResource.MISSING_GROUP_BATCH_CODE);
 
@@ -234,8 +233,7 @@ namespace FOAEA3.Business.Areas.Application
             // More than one of these can occur for the same triggering of Event 50772 (really just 2 and 3).
 
             string reasonText = string.Empty;
-            if (postalCode is null)
-                postalCode = string.Empty;
+            postalCode ??= string.Empty;
 
             if (postalCode == "-")
             {
@@ -351,7 +349,7 @@ namespace FOAEA3.Business.Areas.Application
         {
             bool isConfirmed = false;
 
-            bool isTempSIN = (Application.Appl_Dbtr_Entrd_SIN.Substring(0, 1) == "9");
+            bool isTempSIN = (Application.Appl_Dbtr_Entrd_SIN[..1] == "9");
             bool doesLocalSINExists;
 
             if (Application.AppCtgy_Cd == "I01")
@@ -412,8 +410,8 @@ namespace FOAEA3.Business.Areas.Application
                     foreach (ApplicationConfirmedSINData confirmedAppl in applsInOtherJurisdictions)
                     {
                         EventManager.AddEvent(EventCode.C50930_THIS_DEBTOR_IS_ACTIVE_IN_ANOTHER_JURISDICTION_CONTACT_THE_JURISDICTION_CONCERNED,
-                                              eventReasonText: errorMessage, 
-                                              enfSrv: confirmedAppl.Appl_EnfSrv_Cd, controlCode: confirmedAppl.Appl_CtrlCd,                                              
+                                              eventReasonText: errorMessage,
+                                              enfSrv: confirmedAppl.Appl_EnfSrv_Cd, controlCode: confirmedAppl.Appl_CtrlCd,
                                               submCd: confirmedAppl.Subm_SubmCd, recipientSubm: confirmedAppl.Subm_Recpt_SubmCd);
                     }
 
@@ -437,7 +435,7 @@ namespace FOAEA3.Business.Areas.Application
                 foreach (var applicationFound in applicationList)
                 {
                     if ((!String.IsNullOrEmpty(applicationFound.Appl_Crdtr_SurNme)) &&
-                        (applicationFound.Appl_Crdtr_SurNme.ToUpper() == Application.Appl_Crdtr_SurNme?.ToUpper()))
+                        (applicationFound.Appl_Crdtr_SurNme.Equals(Application.Appl_Crdtr_SurNme?.ToUpper(), StringComparison.CurrentCultureIgnoreCase)))
                     {
                         allMatchErrorMessage.Append($"{applicationFound.Appl_EnfSrv_Cd.Trim()}-{applicationFound.Subm_SubmCd.Trim()}-{applicationFound.Appl_CtrlCd.Trim()} ");
 
@@ -451,7 +449,7 @@ namespace FOAEA3.Business.Areas.Application
 
                 if (!string.IsNullOrEmpty(allMatchErrorMessage.ToString()))
                 {
-                    EventManager.AddEvent(EventCode.C50932_THERE_EXISTS_ONE_OR_MORE_ACTIVE_APPLICATIONS_OF_THIS_TYPE_FOR_THE_SAME_DEBTOR___CREDITOR,                                          
+                    EventManager.AddEvent(EventCode.C50932_THERE_EXISTS_ONE_OR_MORE_ACTIVE_APPLICATIONS_OF_THIS_TYPE_FOR_THE_SAME_DEBTOR___CREDITOR,
                                           allMatchErrorMessage.ToString().Trim());
                 }
 
@@ -616,9 +614,9 @@ namespace FOAEA3.Business.Areas.Application
                 !string.IsNullOrEmpty(debtorProvince) &&
                 (debtorCountry != "USA"))
             {
-                if (ReferenceData.Instance().Provinces.ContainsKey(debtorProvince))
+                if (ReferenceData.Instance().Provinces.TryGetValue(debtorProvince, out ProvinceData provinceData))
                 {
-                    string countryForProvince = ReferenceData.Instance().Provinces[debtorProvince].PrvCtryCd;
+                    string countryForProvince = provinceData.PrvCtryCd;
                     if (countryForProvince == "USA")
                         Application.Messages.AddError("Code Value Error for Appl_Dbtr_Addr_PrvCd", "Appl_Dbtr_Addr_PrvCd");
                 }
@@ -659,11 +657,12 @@ namespace FOAEA3.Business.Areas.Application
                 return false;
             }
 
-            if (!ReferenceData.Instance().Countries.ContainsKey(Application.Appl_Dbtr_Addr_CtryCd))
-            {
-                Application.Messages.AddError("Code Value Error for Appl_Dbtr_Addr_CtryCd", "Appl_Dbtr_Addr_CtryCd");
-                return false;
-            }
+            if (!string.IsNullOrEmpty(Application.Appl_Dbtr_Addr_CtryCd))
+                if (!ReferenceData.Instance().Countries.ContainsKey(Application.Appl_Dbtr_Addr_CtryCd))
+                {
+                    Application.Messages.AddError("Code Value Error for Appl_Dbtr_Addr_CtryCd", "Appl_Dbtr_Addr_CtryCd");
+                    return false;
+                }
 
             if (!ReferenceData.Instance().ApplicationReasons.ContainsKey(Application.AppReas_Cd.Trim()))
             {
@@ -750,6 +749,8 @@ namespace FOAEA3.Business.Areas.Application
 
         }
 
+        [GeneratedRegex(@"^[a-zA-Z\-'. ]*$")]
+        private static partial Regex DebtorSurnameRegex();
     }
 
 }

@@ -4,6 +4,7 @@ using FOAEA3.Model.Interfaces.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BackendProcess.API.Controllers
@@ -51,7 +52,8 @@ namespace BackendProcess.API.Controllers
 
                 if (summSmryNewData != null)
                 {
-                    Response.Headers.Add("get-amount-owed", "GET " + HttpContext.Request.Path.Value);
+                    if (!Response.Headers.ContainsKey("get-amount-owed"))
+                        Response.Headers.Append("get-amount-owed", "GET " + HttpContext.Request.Path.Value);
 
                     return Ok(summSmryNewData);
                 }

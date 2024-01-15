@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace DBHelper
 {
-    public static class SqlStyleExtensions
+    public static partial class SqlStyleExtensions
     {
         public static DateTime SQL_MIN_DATETIME => new(1753, 1, 1);
         public static bool IsBetween(this DateTime dt, DateTime start, DateTime end)
@@ -24,7 +24,7 @@ namespace DBHelper
 
         public static bool IsValidOrderByClause(this string orderByClause)
         {
-            return Regex.IsMatch(orderByClause, @"^[a-zA-Z]+[a-zA-Z ,]*$");
+            return ValidOrderByClauseRegex().IsMatch(orderByClause);
         }
 
         public static bool IsValidSqlDatetime(this string dateTimeValue)
@@ -46,5 +46,8 @@ namespace DBHelper
 
             return isValid;
         }
+
+        [GeneratedRegex(@"^[a-zA-Z]+[a-zA-Z ,]*$")]
+        private static partial Regex ValidOrderByClauseRegex();
     }
 }

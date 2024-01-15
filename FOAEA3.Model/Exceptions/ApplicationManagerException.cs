@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace FOAEA3.Model.Exceptions
 {
@@ -18,8 +17,5 @@ namespace FOAEA3.Model.Exceptions
         {
         }
 
-        protected ApplicationManagerException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 }
