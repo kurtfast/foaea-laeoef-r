@@ -509,7 +509,7 @@ namespace FOAEA3.Business.Areas.Application
         {
             string result = string.Empty;
 
-            var data = await DB.SINResultTable.GetSINResults(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd);
+            var data = await DB.SINResultTable.GetSINResultsWithHistory(Application.Appl_EnfSrv_Cd, Application.Appl_CtrlCd);
             var sinData = data.Items.FirstOrDefault();
 
             if (sinData != null)
