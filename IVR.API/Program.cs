@@ -12,7 +12,7 @@ using FOAEA3.IVR;
 //{
 //    services.AddScoped<IIVRRepository>(m => ActivatorUtilities.CreateInstance<FakeDataIVR>(m));
 //}
-await Startup.SetupAndRun(args);
+Startup.SetupAndRun(args);
 //namespace IVR.API
 //{
 //    public partial class Program
