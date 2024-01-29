@@ -49,7 +49,7 @@ namespace FOAEA3.IVR
 
                 IdentityModelEventSource.ShowPII = true;
             }
-            else if (configuration.ProductionServers.Any(prodServer => prodServer.ToLower() == currentServer.ToLower()))
+            else if (configuration.ProductionServers.Any(prodServer => prodServer.Equals(currentServer, StringComparison.CurrentCultureIgnoreCase)))
             {
                 app.UseExceptionHandler(appBuilder =>
                 {
@@ -77,10 +77,11 @@ namespace FOAEA3.IVR
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseRouting()
+               .UseEndpoints(r =>
+               {
+                   r.MapDefaultControllerRoute();
+               });
 
         }
 
@@ -94,7 +95,7 @@ namespace FOAEA3.IVR
             ColourConsole.WriteEmbeddedColorLine($"Using Connection: [yellow]{connectionString}[/yellow]");
         }
 
-        public static async Task SetupAndRun(string[] args, Action<IServiceCollection> SetupDataOverride = null)
+        public static void SetupAndRun(string[] args, Action<IServiceCollection> SetupDataOverride = null)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Logging.ClearProviders();
@@ -104,8 +105,6 @@ namespace FOAEA3.IVR
             var apiName = env.ApplicationName;
 
             var config = new IVRConfigurationHelper(args);
-
-            //LoggingHelper.SetupLogging(config.FoaeaConnection);
 
             builder.Services.AddSwaggerGen(options =>
             {

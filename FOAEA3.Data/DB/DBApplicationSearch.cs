@@ -11,14 +11,9 @@ using System.Threading.Tasks;
 namespace FOAEA3.Data.DB
 {
 
-    internal class DBApplicationSearch : DBbase, IApplicationSearchRepository
+    internal class DBApplicationSearch(IDBToolsAsync mainDB) : DBbase(mainDB), IApplicationSearchRepository
     {
         public string LastError { get; set; }
-
-        public DBApplicationSearch(IDBToolsAsync mainDB) : base(mainDB)
-        {
-
-        }
 
         public async Task<(List<ApplicationSearchResultData>, int)> QuickSearch(QuickSearchData searchData,
                                                              int page = 1, int perPage = 1000,
@@ -218,10 +213,10 @@ namespace FOAEA3.Data.DB
 
             if (submClass.NotIn("am", "fm", "ac", "fc"))
             {
-                searchRange = submitter.Substring(0, 2);
+                searchRange = submitter[..2];
                 if (submClass.In("eo", "ro", "fo"))
                 {
-                    searchRange += "%" + submitter.Substring(3, 1);
+                    searchRange += string.Concat("%", submitter.AsSpan(3, 1));
                 }
                 searchRange += "%";
             }
@@ -241,7 +236,12 @@ namespace FOAEA3.Data.DB
             data.Appl_Dbtr_SurNme = rdr["DebtorSurname"] as string;
             data.Appl_Source_RfrNr = rdr["ReferenceNumber"] as string; // can be null 
             data.Appl_JusticeNr = rdr["JusticeNumber"] as string; // can be null 
-            data.ActvSt_Cd = ReferenceData.Instance().ActiveStatuses[rdr["Status"] as string].ActvSt_Txt_E;
+            if (rdr["Status"] as string != null)
+            {
+                string thisStatus = rdr["Status"] as string;
+                if (!string.IsNullOrEmpty(thisStatus))
+                    data.ActvSt_Cd = ReferenceData.Instance().ActiveStatuses[thisStatus].ActvSt_Txt_E;
+            }
             data.AppLiSt_Cd = (ApplicationState)rdr["State"];
         }
 

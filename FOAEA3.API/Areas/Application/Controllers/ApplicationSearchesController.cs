@@ -32,10 +32,13 @@ public class ApplicationSearchesController : ControllerBase
             int totalCount;
             (result, totalCount) = await searchManager.Search(quickSearchCriteria, page, perPage, orderBy);
 
-            Response.Headers.Add("Page", page.ToString());
-            Response.Headers.Add("PerPage", perPage.ToString());
-            Response.Headers.Add("OrderBy", orderBy);
-            Response.Headers.Add("TotalCount", totalCount.ToString());
+            if (!Response.Headers.ContainsKey("Page"))
+            {
+                Response.Headers.Append("Page", page.ToString());
+                Response.Headers.Append("PerPage", perPage.ToString());
+                Response.Headers.Append("OrderBy", orderBy);
+                Response.Headers.Append("TotalCount", totalCount.ToString());
+            }
 
             if (string.IsNullOrEmpty(searchManager.LastError))
                 return Ok(result);

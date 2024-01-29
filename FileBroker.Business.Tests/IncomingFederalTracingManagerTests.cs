@@ -48,7 +48,7 @@ namespace FileBroker.Business.Tests
             if (errors.Count > 0)
             {
                 foreach (var error in errors)
-                    Assert.True(false, error);
+                    Assert.Fail(error);
             }
             Assert.Equal<int>(1, netpTracingData.TRCIN01.Cycle);
             Assert.Equal("D62990", netpTracingData.TRCIN02[0].dat_Appl_CtrlCd.Trim());
@@ -88,7 +88,7 @@ namespace FileBroker.Business.Tests
             if (errors.Count > 0)
             {
                 foreach (var error in errors)
-                    Assert.True(false, error);
+                    Assert.Fail(error);
             }
             Assert.Equal<int>(1, craTracingData.TRCIN01.Cycle);
             Assert.Equal<int>(craTracingData.TRCIN02.Count, craTracingData.TRCIN99.ResponseCnt);
@@ -127,7 +127,7 @@ namespace FileBroker.Business.Tests
             if (errors.Count > 0)
             {
                 foreach (var error in errors)
-                    Assert.True(false, error);
+                    Assert.Fail(error);
             }
             Assert.Equal<int>(1, eiTracingData.TRCIN01.Cycle);
             Assert.Equal<int>(eiTracingData.TRCIN02.Count, eiTracingData.TRCIN99.ResponseCnt);
@@ -179,24 +179,22 @@ namespace FileBroker.Business.Tests
         //    Assert.Equal<int>(craTracingData.TRCIN02.Count, craTracingData.TRCIN99.ResponseCnt);
         //}
 
-        private static void SaveTraceResponsesToFile(List<TraceResponseData> traceResponses)
-        {
-            string outputFile = @"C:\Work\TraceResponses.txt";
+        //private static void SaveTraceResponsesToFile(List<TraceResponseData> traceResponses)
+        //{
+        //    string outputFile = @"C:\Work\TraceResponses.txt";
 
-            if (File.Exists(outputFile))
-                File.Delete(outputFile);
+        //    if (File.Exists(outputFile))
+        //        File.Delete(outputFile);
 
-            using var fs = new StreamWriter(outputFile, false);
-            foreach (var item in traceResponses)
-                fs.WriteLine($"{item.Appl_EnfSrv_Cd}\t{item.Appl_CtrlCd}\t{item.EnfSrv_Cd}\t{item.TrcRsp_Rcpt_Dte}\t{item.TrcRsp_SeqNr}\t" +
-                    $"{item.TrcRsp_EmplNme}\t{item.TrcRsp_EmplNme1}\t{item.TrcSt_Cd}\t{item.TrcRsp_Addr_Ln}\t{item.TrcRsp_Addr_Ln1}\t" +
-                    $"{item.TrcRsp_Addr_CityNme}\t{item.TrcRsp_Addr_PrvCd}\t{item.TrcRsp_Addr_CtryCd}\t{item.TrcRsp_Addr_PCd}\t{item.TrcRsp_Addr_LstUpdte}\t" +
-                    $"{item.AddrTyp_Cd}\t{item.TrcRsp_SubmViewed_Ind}\t{item.TrcRsp_RcptViewed_Ind}\t{item.TrcRsp_SubmAddrUsed_Ind}\t{item.TrcRsp_SubmAddrHasValue_Ind}\t" +
-                    $"{item.TrcRsp_Trace_CyclNr}\t{item.ActvSt_Cd}\t{item.Prcs_RecType}\t{item.TrcRsp_RcptViewed_Dte}"
-                    );
-
-
-        }
+        //    using var fs = new StreamWriter(outputFile, false);
+        //    foreach (var item in traceResponses)
+        //        fs.WriteLine($"{item.Appl_EnfSrv_Cd}\t{item.Appl_CtrlCd}\t{item.EnfSrv_Cd}\t{item.TrcRsp_Rcpt_Dte}\t{item.TrcRsp_SeqNr}\t" +
+        //            $"{item.TrcRsp_EmplNme}\t{item.TrcRsp_EmplNme1}\t{item.TrcSt_Cd}\t{item.TrcRsp_Addr_Ln}\t{item.TrcRsp_Addr_Ln1}\t" +
+        //            $"{item.TrcRsp_Addr_CityNme}\t{item.TrcRsp_Addr_PrvCd}\t{item.TrcRsp_Addr_CtryCd}\t{item.TrcRsp_Addr_PCd}\t{item.TrcRsp_Addr_LstUpdte}\t" +
+        //            $"{item.AddrTyp_Cd}\t{item.TrcRsp_SubmViewed_Ind}\t{item.TrcRsp_RcptViewed_Ind}\t{item.TrcRsp_SubmAddrUsed_Ind}\t{item.TrcRsp_SubmAddrHasValue_Ind}\t" +
+        //            $"{item.TrcRsp_Trace_CyclNr}\t{item.ActvSt_Cd}\t{item.Prcs_RecType}\t{item.TrcRsp_RcptViewed_Dte}"
+        //            );
+        //}
     }
 
 }
