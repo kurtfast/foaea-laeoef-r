@@ -16,7 +16,7 @@ public class LicenceDenialsController : FoaeaControllerBase
 {
     [HttpGet("Version")]
     [AllowAnonymous]
-    public ActionResult<string> GetVersion() => Ok("LicenceDenialsFiles API Version 1.0");
+    public ActionResult<string> GetVersion() => Ok("LicenceDenials API Version 1.0");
 
     [HttpGet("DB")]
     [Authorize(Roles = Roles.Admin)]

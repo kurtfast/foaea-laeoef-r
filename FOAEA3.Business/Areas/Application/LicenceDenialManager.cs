@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FOAEA3.Business.Areas.Application
 {
@@ -227,8 +228,43 @@ namespace FOAEA3.Business.Areas.Application
             bool success = await ValidateOrderOrProvisionInDefault();
 
             if (success)
-                await base.UpdateApplication();
+            {
+                if ((LicenceDenialApplication.ActvSt_Cd == "A") && 
+                    (LicenceDenialApplication.AppLiSt_Cd.In(ApplicationState.APPLICATION_ACCEPTED_10, 
+                                                            ApplicationState.PARTIALLY_SERVICED_12)))
+                {
+                    if (AppChanged(current.LicenceDenialApplication))
+                        await CreateLicenseEventForActiveL01DataChanged("Debtor Info Updated");
+                }
 
+                await base.UpdateApplication();
+            }
+        }
+
+        private bool AppChanged(LicenceDenialApplicationData currentAppl)
+        {
+            bool wasChanged = false;
+            var newAppl = LicenceDenialApplication;
+
+            if (!currentAppl.Appl_Dbtr_Addr_Ln.Trim().Equals(newAppl.Appl_Dbtr_Addr_Ln.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                wasChanged = true;
+
+            if (!currentAppl.Appl_Dbtr_Addr_Ln1.Trim().Equals(newAppl.Appl_Dbtr_Addr_Ln1.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                wasChanged = true;
+
+            if (!currentAppl.Appl_Dbtr_Addr_CityNme.Trim().Equals(newAppl.Appl_Dbtr_Addr_CityNme.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                wasChanged = true;
+
+            if (!currentAppl.Appl_Dbtr_Addr_PrvCd.Trim().Equals(newAppl.Appl_Dbtr_Addr_PrvCd.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                wasChanged = true;
+
+            if (!currentAppl.Appl_Dbtr_Addr_CtryCd.Trim().Equals(newAppl.Appl_Dbtr_Addr_CtryCd.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                wasChanged = true;
+
+            if (!currentAppl.Appl_Dbtr_Addr_PCd.Trim().Equals(newAppl.Appl_Dbtr_Addr_PCd.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                wasChanged = true;
+
+            return wasChanged;
         }
 
         public async Task<bool> ProcessLicenceDenialResponse(string appl_EnfSrv_Cd, string appl_CtrlCd)
@@ -293,6 +329,26 @@ namespace FOAEA3.Business.Areas.Application
         {
             var responsesDB = DB.LicenceDenialResponseTable;
             await responsesDB.MarkResponsesAsViewed(enfService);
+        }
+
+        public async Task CreateLicenseEventForActiveL01DataChanged(string sMessage)
+        {
+            if (!await ActiveDataMaintenanceLicenseEventForApplication())
+            {
+                EventManager.AddEvent(EventCode.C50529_APPLICATION_UPDATED_SUCCESSFULLY, sMessage, EventQueue.EventLicence);
+                await EventManager.SaveEvents();
+            }
+        }
+
+        public async Task<bool> ActiveDataMaintenanceLicenseEventForApplication()
+        {
+            var events = await EventManager.GetApplicationEventsForQueue(EventQueue.EventLicence);
+
+            var activeEvents = events.Where(m => m.ActvSt_Cd == "A" && 
+                                            m.Event_Reas_Cd == EventCode.C50529_APPLICATION_UPDATED_SUCCESSFULLY &&
+                                            !m.Event_Compl_Dte.HasValue).ToList();
+
+            return activeEvents.Count != 0;
         }
 
         public override async Task ProcessBringForwards(ApplicationEventData bfEvent)
