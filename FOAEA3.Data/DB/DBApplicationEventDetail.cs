@@ -1,7 +1,6 @@
 ﻿using DBHelper;
 using FOAEA3.Data.Base;
 using FOAEA3.Model;
-using FOAEA3.Model.Base;
 using FOAEA3.Model.Enums;
 using FOAEA3.Model.Interfaces.Repository;
 using System;
@@ -29,15 +28,18 @@ namespace FOAEA3.Data.DB
                     {"Appl_CtrlCd", appl_CtrlCd }
                 };
 
-            var eventDetailsData = new ApplicationEventDetailsList();
+            ApplicationEventDetailsList data;
 
             switch (queue)
             {
-                case EventQueue.EventLicence_dtl:
                 case EventQueue.EventSYS_dtl:
                 case EventQueue.EventCR_PADR_dtl:
                 case EventQueue.EventTrace_ESDC_dtl:
-                    // TODO: add other events associated to application?
+                    data = []; // not implemented yet
+                    break;
+
+                case EventQueue.EventLicence_dtl:
+                    data = await GetEventDetailsForQueue("EvntLicence_dtl_SelectForApplication", queue, activeState, parameters);
                     break;
 
                 case EventQueue.EventBFN_dtl:
@@ -45,47 +47,41 @@ namespace FOAEA3.Data.DB
                         parameters.Add("ActvSt_Cd", "A");
                     else
                         parameters.Add("ActvSt_Cd", activeState);
-
-                    var data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventDetailData>("GetEventBFNDTLforI01",
-                                                                                    parameters, FillEventDetailDataFromReader);
-
-                    foreach (var item in data)
-                    {
-                        item.Queue = EventQueue.EventBFN_dtl;
-                        if (string.IsNullOrEmpty(activeState) ||
-                            (!string.IsNullOrEmpty(activeState) && item.ActvSt_Cd == activeState))
-                            eventDetailsData.Add(item);
-                    }
-
+                    data = await GetEventDetailsForQueue("GetEventBFNDTLforI01", queue, activeState, parameters);
                     break;
-                case EventQueue.EventSIN_dtl:
-                    data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventDetailData>("EvntSIN_dtl_SelectForApplication",
-                                                                                    parameters, FillEventDetailDataFromReader);
-                    foreach (var item in data)
-                    {
-                        item.Queue = EventQueue.EventSIN_dtl;
-                        if (string.IsNullOrEmpty(activeState) ||
-                            (!string.IsNullOrEmpty(activeState) && item.ActvSt_Cd == activeState))
-                            eventDetailsData.Add(item);
-                    }
 
+                case EventQueue.EventSIN_dtl:
+                    data = await GetEventDetailsForQueue("EvntSIN_dtl_SelectForApplication", queue, activeState, parameters);
                     break;
 
                 case EventQueue.EventTrace_dtl:
-                    data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventDetailData>("EvntTrace_dtl_SelectForApplication",
-                                                                                    parameters, FillEventDetailDataFromReader);
-                    foreach (var item in data)
-                    {
-                        item.Queue = EventQueue.EventTrace_dtl;
-                        if (string.IsNullOrEmpty(activeState) ||
-                            (!string.IsNullOrEmpty(activeState) && item.ActvSt_Cd == activeState))
-                            eventDetailsData.Add(item);
-                    }
+                    data = await GetEventDetailsForQueue("EvntTrace_dtl_SelectForApplication", queue, activeState, parameters);
+                    break;
 
+                default:
+                    data = []; // unknown queue?
                     break;
             }
 
-            return eventDetailsData;
+            return data;
+        }
+
+        private async Task<ApplicationEventDetailsList> GetEventDetailsForQueue(string procName, EventQueue thisQueue, string activeState,
+                                                            Dictionary<string, object> parameters)
+        {
+            var fixedData = new ApplicationEventDetailsList();
+
+            var data = await MainDB.GetDataFromStoredProcAsync<ApplicationEventDetailData>(procName,
+                                                                parameters, FillEventDetailDataFromReader);
+            foreach (var item in data)
+            {
+                item.Queue = thisQueue;
+                if (string.IsNullOrEmpty(activeState) ||
+                    (!string.IsNullOrEmpty(activeState) && item.ActvSt_Cd == activeState))
+                    fixedData.Add(item);
+            }
+
+            return fixedData;
         }
 
         public async Task<ApplicationEventDetailData> GetEventSINDetailDataForEventID(int eventID)
@@ -120,7 +116,7 @@ namespace FOAEA3.Data.DB
             {
                 item.Queue = EventQueue.EventTrace_dtl;
                 eventDetailsData.Add(item);
-            }           
+            }
 
             return eventDetailsData;
         }
