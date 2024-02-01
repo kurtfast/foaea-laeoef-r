@@ -11,6 +11,7 @@ namespace FileBroker.Business.Helpers
             unknownTags = new List<UnknownTag>();
 
             var schema = JsonSchema.FromType<T>();
+            schema.AllowAdditionalProperties = true;
             try
             {
                 var errors = schema.Validate(source);
