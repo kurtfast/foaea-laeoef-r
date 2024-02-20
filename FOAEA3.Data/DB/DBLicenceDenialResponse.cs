@@ -16,8 +16,6 @@ namespace FOAEA3.Data.DB
 
         }
 
-        public MessageDataList Messages => throw new NotImplementedException();
-
         public async Task<LicenceDenialResponseData> GetLastResponseData(string applEnfSrvCd, string applCtrlCd)
         {
             var parameters = new Dictionary<string, object>

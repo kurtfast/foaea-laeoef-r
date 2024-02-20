@@ -56,7 +56,7 @@ public class LicenceDenialsController : FoaeaControllerBase
         {
             if (manager.LicenceDenialApplication.AppCtgy_Cd == "L01")
             {
-                var suspensionHistory = manager.GetLicenceSuspensionHistory();
+                var suspensionHistory = await manager.GetLicenceSuspensionHistory();
 
                 return Ok(suspensionHistory);
             }

@@ -19,7 +19,8 @@ namespace FOAEA3.API.Filters
             }
 
             var actionPath = context.HttpContext.Request.Path;
-            if (actionPath.HasValue && actionPath.Value.Contains("/friendly")) {
+            if (actionPath.HasValue && actionPath.Value.Contains("/friendly"))
+            {
                 var mapper = context.HttpContext.RequestServices.GetRequiredService<IMapper>();
                 resultFromAction.Value = mapper.Map<ApplicationDataFriendly>(resultFromAction.Value);
             }
