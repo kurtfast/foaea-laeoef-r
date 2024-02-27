@@ -412,7 +412,8 @@ namespace FOAEA3.Business.Areas.Application
                         EventManager.AddEvent(EventCode.C50930_THIS_DEBTOR_IS_ACTIVE_IN_ANOTHER_JURISDICTION_CONTACT_THE_JURISDICTION_CONCERNED,
                                               eventReasonText: errorMessage,
                                               enfSrv: confirmedAppl.Appl_EnfSrv_Cd, controlCode: confirmedAppl.Appl_CtrlCd,
-                                              submCd: confirmedAppl.Subm_SubmCd, recipientSubm: confirmedAppl.Subm_Recpt_SubmCd);
+                                              submCd: confirmedAppl.Subm_SubmCd, recipientSubm: confirmedAppl.Subm_Recpt_SubmCd,
+                                              appState: confirmedAppl.AppLiSt_Cd);
                     }
 
                 }
