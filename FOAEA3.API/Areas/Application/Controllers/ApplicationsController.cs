@@ -8,14 +8,13 @@ using FOAEA3.Model.Constants;
 using FOAEA3.Model.Interfaces.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Spire.Pdf.Lists;
 
 namespace FOAEA3.API.Areas.Application.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
 public class ApplicationsController : FoaeaControllerBase
-{    
+{
     [AllowAnonymous]
     [HttpGet("Version")]
     public ActionResult<string> GetVersion() => Ok("Applications API Version 1.0");
