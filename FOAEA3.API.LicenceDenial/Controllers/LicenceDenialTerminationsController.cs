@@ -42,10 +42,10 @@ public class LicenceDenialTerminationsController : FoaeaControllerBase
 
     [HttpPost]
     public async Task<ActionResult<LicenceDenialApplicationData>> CreateApplication([FromServices] IRepositories db,
-                                                                        [FromQuery] string controlCodeForL01)
+                                                                                    [FromQuery] string controlCodeForL01)
     {
         var application = await APIBrokerHelper.GetDataFromRequestBody<LicenceDenialApplicationData>(Request);
-        var requestDate = DateTime.Now; // or should it be a different date?
+        var requestDate = application.LicSusp_TermRequestDte ?? DateTime.Now;
 
         if (!APIHelper.ValidateRequest(application, applKey: null, out string error))
             return UnprocessableEntity(error);
@@ -66,7 +66,6 @@ public class LicenceDenialTerminationsController : FoaeaControllerBase
         }
         else
             return UnprocessableEntity(application);
-
     }
 
     [HttpPut("{key}")]

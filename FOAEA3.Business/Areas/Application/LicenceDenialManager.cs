@@ -91,9 +91,15 @@ namespace FOAEA3.Business.Areas.Application
             if (!IsValidCategory("L01"))
                 return false;
 
-            if (ValidateDeclaration())
-                LicenceDenialApplication.LicSusp_Declaration_Ind = true;
-            else
+            if (LicenceDenialApplication.Medium_Cd == "FTP")
+            {
+                if (ValidateDeclaration())
+                    LicenceDenialApplication.LicSusp_Declaration_Ind = true;
+                else
+                    return false;
+            }
+            else if (LicenceDenialApplication.LicSusp_Declaration_Ind is null ||
+                     !LicenceDenialApplication.LicSusp_Declaration_Ind.Value)
                 return false;
 
             if (string.IsNullOrEmpty(LicenceDenialApplication.Appl_Dbtr_LngCd))
@@ -106,13 +112,15 @@ namespace FOAEA3.Business.Areas.Application
             else
                 success = false;
 
-            if (!success)
+            if (success)
+            {
+                LicenceDenialApplication.LicSusp_LiStCd = 2;
+                await DB.LicenceDenialTable.CreateLicenceDenialData(LicenceDenialApplication);
+            }
+            else
             {
                 var failedSubmitterManager = new FailedSubmitAuditManager(DB, LicenceDenialApplication);
                 await failedSubmitterManager.AddToFailedSubmitAudit(FailedSubmitActivityAreaType.L01);
-
-                LicenceDenialApplication.LicSusp_LiStCd = 2;
-                await DB.LicenceDenialTable.CreateLicenceDenialData(LicenceDenialApplication);
             }
 
             return success;
@@ -229,8 +237,8 @@ namespace FOAEA3.Business.Areas.Application
 
             if (success)
             {
-                if ((LicenceDenialApplication.ActvSt_Cd == "A") && 
-                    (LicenceDenialApplication.AppLiSt_Cd.In(ApplicationState.APPLICATION_ACCEPTED_10, 
+                if ((LicenceDenialApplication.ActvSt_Cd == "A") &&
+                    (LicenceDenialApplication.AppLiSt_Cd.In(ApplicationState.APPLICATION_ACCEPTED_10,
                                                             ApplicationState.PARTIALLY_SERVICED_12)))
                 {
                     if (AppChanged(current.LicenceDenialApplication))
@@ -344,7 +352,7 @@ namespace FOAEA3.Business.Areas.Application
         {
             var events = await EventManager.GetApplicationEventsForQueue(EventQueue.EventLicence);
 
-            var activeEvents = events.Where(m => m.ActvSt_Cd == "A" && 
+            var activeEvents = events.Where(m => m.ActvSt_Cd == "A" &&
                                             m.Event_Reas_Cd == EventCode.C50529_APPLICATION_UPDATED_SUCCESSFULLY &&
                                             !m.Event_Compl_Dte.HasValue).ToList();
 

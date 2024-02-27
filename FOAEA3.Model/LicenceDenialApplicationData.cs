@@ -82,6 +82,10 @@ namespace FOAEA3.Model
             LicSusp_Dbtr_LastAddr_PrvCd = data.LicSusp_Dbtr_LastAddr_PrvCd;
             LicSusp_Dbtr_LastAddr_CtryCd = data.LicSusp_Dbtr_LastAddr_CtryCd;
             LicSusp_Dbtr_LastAddr_PCd = data.LicSusp_Dbtr_LastAddr_PCd;
+
+            LicSusp_Dbtr_PhoneNumber = data.LicSusp_Dbtr_PhoneNumber;
+            LicSusp_Dbtr_EmailAddress = data.LicSusp_Dbtr_EmailAddress;
+            LicSusp_Declaration_Ind = data.LicSusp_Declaration_Ind;
         }
     }
 }

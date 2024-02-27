@@ -348,6 +348,10 @@ namespace FOAEA3.Data.DB
             data.LicSusp_Dbtr_LastAddr_PrvCd = rdr["LicSusp_Dbtr_LastAddr_PrvCd"] as string; // can be null 
             data.LicSusp_Dbtr_LastAddr_CtryCd = rdr["LicSusp_Dbtr_LastAddr_CtryCd"] as string; // can be null 
             data.LicSusp_Dbtr_LastAddr_PCd = rdr["LicSusp_Dbtr_LastAddr_PCd"] as string; // can be null 
+
+            data.LicSusp_Dbtr_PhoneNumber = rdr["LicSusp_Dbtr_PhoneNumber"] as string; // can be null
+            data.LicSusp_Dbtr_EmailAddress = rdr["LicSusp_Dbtr_EmailAddress"] as string; // can be null
+            data.LicSusp_Declaration_Ind = (bool?)rdr["LicSusp_Declaration_Ind"];
         }
 
         private void FillSuspensionHistoryDataFromReader(IDBHelperReader rdr, LicenceSuspensionHistoryData data)
