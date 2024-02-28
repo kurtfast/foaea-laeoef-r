@@ -38,7 +38,31 @@ namespace FOAEA3.Data.DB
             return await MainDB.GetDataFromStoredProcAsync<SubmitterData>("SubmGetSubm", parameters, FillSubmitterData);
 
         }
-                
+
+        public async Task<List<SubmitterData>> GetSubmitterIncludingClosed(string submCode = null,
+                                                string submName = null,
+                                                string enfOffCode = null,
+                                                string enfServCode = null,
+                                                string submFName = null,
+                                                string submMName = null,
+                                                string prov = null)
+        {
+
+            var parameters = new Dictionary<string, object>();
+
+            if (!string.IsNullOrEmpty(submCode)) { parameters["Subm_SubmCd"] = submCode; }
+            if (!string.IsNullOrEmpty(submName)) { parameters["Subm_SurNme"] = submName; }
+            if (!string.IsNullOrEmpty(enfOffCode)) { parameters["EnfOff_City_LocCd"] = enfOffCode; }
+            if (!string.IsNullOrEmpty(enfServCode)) { parameters["EnfSrv_Cd"] = enfServCode; }
+            if (!string.IsNullOrEmpty(submFName)) { parameters["Subm_FrstNme"] = submMName; }
+            if (!string.IsNullOrEmpty(submFName)) { parameters["Subm_MddleNme"] = submMName; }
+            if (!string.IsNullOrEmpty(prov)) { parameters["ProvCode"] = prov; }
+
+            return await MainDB.GetDataFromStoredProcAsync<SubmitterData>("SubmGetSubmAll", parameters, FillSubmitterData);
+
+        }
+
+
         public async Task<List<string>> GetSubmitterCodesForOffice(string service, string office)
         {
             var parameters = new Dictionary<string, object> {
