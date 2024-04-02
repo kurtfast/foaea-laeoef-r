@@ -1,10 +1,9 @@
-﻿using FOAEA3.Model.Base;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FOAEA3.Model.Interfaces.Repository
 {
-    public interface ILicenceDenialResponseRepository : IMessageList
+    public interface ILicenceDenialResponseRepository
     {
         string CurrentSubmitter { get; set; }
         string UserId { get; set; }

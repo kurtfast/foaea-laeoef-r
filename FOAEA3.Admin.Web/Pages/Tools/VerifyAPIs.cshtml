@@ -1,0 +1,40 @@
+﻿@page
+@model FOAEA3.Admin.Web.Pages.Tools.VerifyAPIsModel
+@{
+}
+
+<div>Selected Environment: <strong>@Model.Environment</strong></div>
+<br />
+@{
+    if (ViewData["Message"] != null)
+    {
+        <div class="alert alert-primary">@Html.Raw(ViewData["Message"])</div>
+    }
+    if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-danger">@Html.Raw(ViewData["Error"])</div>
+    }
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <p>Select environment:</p>
+                @foreach (var environment in Model.Environments)
+                {
+                    <input type="radio" asp-for="Environment" value="@environment" />
+
+                    @environment
+
+                    <br />
+                }
+            </div>
+            <div class="form-group">
+                <input type="submit" value="VerifyAPI" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+

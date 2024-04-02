@@ -89,6 +89,11 @@ namespace TestData.TestDB
             throw new NotImplementedException();
         }
 
+        public Task<List<SubmitterData>> GetSubmitterIncludingClosed(string submCode = null, string submName = null, string enfOffCode = null, string enfServCode = null, string submFName = null, string submMName = null, string prov = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<List<SubmitterMessageData>> GetSubmitterMessageForSubmitter(string submitterID, int languageCode)
         {
             throw new NotImplementedException();
